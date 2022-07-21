@@ -14,7 +14,7 @@ public class CommentDto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDateTime date;
+    private String date;
     private String text;
     private String username;
 }

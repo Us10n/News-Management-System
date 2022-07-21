@@ -29,5 +29,5 @@ public class News {
 
     @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_news")
-    private Set<Comment> tags;
+    private Set<Comment> comments;
 }

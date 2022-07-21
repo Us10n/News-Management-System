@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':repository')
+    implementation project(':persistence')
     implementation project(':domain')
 
     implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.0'
@@ -23,10 +23,14 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.5.2.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.2.Final'
 
+    implementation 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.11.0'
 
     testImplementation 'org.springframework:spring-test:5.3.20'
     implementation 'org.springframework:spring-context:5.3.20'
+
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
 }
