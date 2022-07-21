@@ -1,0 +1,12 @@
+#ignore idea folders
+/.idea
+
+#ignore gradle folders
+/.gradle
+/gradle
+
+#ignore build folders
+/domain/build
+/repository/build
+/service/build
+/web/build
