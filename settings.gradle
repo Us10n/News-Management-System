@@ -1,0 +1,6 @@
+rootProject.name = 'News-Management-System'
+include 'web'
+include 'service'
+include 'repository'
+include 'domain'
+
