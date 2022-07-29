@@ -7,6 +7,6 @@
 
 #ignore build folders
 /domain/build
-/repository/build
+/persistence/build
 /service/build
 /web/build
