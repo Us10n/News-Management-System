@@ -1,13 +1,12 @@
 package by.stas.nms.service;
 
-import java.util.List;
-
 /**
  * Interface of service that performs CRUD operations.
  *
  * @param <T> Dto class
+ * @param <R> id type
  */
-public interface CRUDService<T> {
+public interface CRUDService<T,R> {
     /**
      * Create T type object.
      *
@@ -17,19 +16,12 @@ public interface CRUDService<T> {
     T create(T object);
 
     /**
-     * Read all T type objects.
-     *
-     * @return list of existing objects
-     */
-    List<T> readAll(Integer page, Integer limit);
-
-    /**
      * Read T object by id.
      *
      * @param id object id
      * @return the T type object
      */
-    T readById(long id);
+    T readById(R id);
 
     /**
      * Update T type object.
@@ -44,5 +36,5 @@ public interface CRUDService<T> {
      *
      * @param id object id
      */
-    void delete(long id);
+    void delete(R id);
 }

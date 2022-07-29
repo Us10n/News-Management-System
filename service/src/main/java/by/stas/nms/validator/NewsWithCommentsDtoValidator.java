@@ -4,6 +4,7 @@ import by.stas.nms.dto.CommentDto;
 import by.stas.nms.dto.NewsWithCommentsDto;
 import by.stas.nms.exception.ExceptionHolder;
 import lombok.experimental.UtilityClass;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -11,9 +12,13 @@ import java.time.format.DateTimeParseException;
 import static by.stas.nms.exception.ExceptionMessageKey.*;
 
 @UtilityClass
-public class NewsDtoValidator {
+public class NewsWithCommentsDtoValidator {
     private static final Integer MIN_STRING_LENGTH = 1;
     private static final Integer MAX_TITLE_LENGTH = 20;
+
+    public boolean isIdStringValid(String id) {
+        return id != null && ObjectId.isValid(id);
+    }
 
     public boolean isDateValid(String date) {
         try {
@@ -32,12 +37,12 @@ public class NewsDtoValidator {
         return text != null && text.length() > MIN_STRING_LENGTH;
     }
 
-    public void isNewsDtoValid(NewsWithCommentsDto newsDto, ExceptionHolder exceptionHolder) {
+    public void isNewsWithCommentsDtoPayloadValid(NewsWithCommentsDto newsDto, ExceptionHolder exceptionHolder) {
         if (newsDto == null) {
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);
             return;
         }
-        if (!isDateValid(newsDto.getDate())) {
+        if (!isDateValid(newsDto.getDate().toString())) {
             exceptionHolder.addException(BAD_COMMENT_DATE, newsDto.getDate());
         }
         if (!isTitleValid(newsDto.getTitle())) {
@@ -46,6 +51,15 @@ public class NewsDtoValidator {
         if (!isTextValid(newsDto.getText())) {
             exceptionHolder.addException(BAD_COMMENT_TEXT);
         }
-        newsDto.getComments().forEach(commentDto -> CommentDtoValidator.isCommentDtoValid(commentDto, exceptionHolder));
+        if (newsDto.getComments() != null) {
+            newsDto.getComments().forEach(commentDto -> CommentDtoValidator.isCommentDtoPayloadValid(commentDto, exceptionHolder));
+        }
+    }
+
+    public void isNewsWithCommentsDtoValid(NewsWithCommentsDto newsDto, ExceptionHolder exceptionHolder) {
+        isNewsWithCommentsDtoPayloadValid(newsDto, exceptionHolder);
+        if (!isIdStringValid(newsDto.getId())) {
+            exceptionHolder.addException(BAD_ID_STRING);
+        }
     }
 }

@@ -7,6 +7,8 @@ public final class ExceptionMessageKey {
 
     public static final String NULL_PASSED = "error.nullPassed";
 
+    public static final String BAD_ID_STRING = "invalid.id";
+
     public static final String BAD_COMMENT_DATE="invalid.comment.date";
     public static final String BAD_COMMENT_TEXT="invalid.comment.text";
     public static final String BAD_COMMENT_USERNAME="invalid.comment.username";
