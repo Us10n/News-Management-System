@@ -6,8 +6,8 @@ group 'by.stas.nms'
 version '1.0-SNAPSHOT'
 
 compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -17,19 +17,13 @@ repositories {
 dependencies {
     implementation project(':domain')
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.0'
-
-    implementation group: 'org.hibernate', name: 'hibernate-envers', version: '5.5.3.Final'
-
-    implementation 'org.springframework:spring-jdbc:5.3.20'
-    implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb:2.7.0'
 
     implementation 'com.zaxxer:HikariCP:4.0.3'
 
     implementation 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
 
