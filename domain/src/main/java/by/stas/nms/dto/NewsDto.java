@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
+public class NewsDto {
     private String id;
-    private String newsId;
     private LocalDateTime date;
+    private String title;
     private String text;
-    private String username;
 }
+

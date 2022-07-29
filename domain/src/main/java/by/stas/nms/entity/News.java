@@ -3,31 +3,30 @@ package by.stas.nms.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.index.TextIndexed;
+import org.springframework.data.mongodb.core.mapping.*;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
-@Entity
+@Document(collection = "news")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "news")
 public class News {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @MongoId(FieldType.OBJECT_ID)
+    private String id;
 
-    @Column(name = "date")
+    @TextIndexed(weight = 1)
+    @Field(targetType = FieldType.DATE_TIME)
     private LocalDateTime date;
 
-    @Column(name = "title")
+    @TextIndexed(weight = 4)
     private String title;
 
-    @Column(name = "text")
+    @TextIndexed(weight = 2)
     private String text;
 
-    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_news")
-    private Set<Comment> comments;
+    @TextScore
+    private Float score;
 }
