@@ -1,7 +1,7 @@
 package by.stas.nms.validator;
 
 import by.stas.nms.dto.CommentDto;
-import by.stas.nms.dto.NewsDto;
+import by.stas.nms.dto.NewsWithCommentsDto;
 import by.stas.nms.exception.ExceptionHolder;
 import lombok.experimental.UtilityClass;
 
@@ -32,7 +32,7 @@ public class NewsDtoValidator {
         return text != null && text.length() > MIN_STRING_LENGTH;
     }
 
-    public void isNewsDtoValid(NewsDto newsDto, ExceptionHolder exceptionHolder) {
+    public void isNewsDtoValid(NewsWithCommentsDto newsDto, ExceptionHolder exceptionHolder) {
         if (newsDto == null) {
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);
             return;
@@ -47,6 +47,5 @@ public class NewsDtoValidator {
             exceptionHolder.addException(BAD_COMMENT_TEXT);
         }
         newsDto.getComments().forEach(commentDto -> CommentDtoValidator.isCommentDtoValid(commentDto, exceptionHolder));
-
     }
 }

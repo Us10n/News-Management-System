@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewsDto {
-    private long id;
+    private String id;
     private String date;
     private String title;
     private String text;
