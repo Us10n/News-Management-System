@@ -2,17 +2,16 @@ package by.stas.nms.service.impl;
 
 import by.stas.nms.dto.CommentDto;
 import by.stas.nms.entity.Comment;
-import by.stas.nms.entity.News;
 import by.stas.nms.exception.EmptyListRequestedException;
 import by.stas.nms.exception.ExceptionHolder;
 import by.stas.nms.exception.IncorrectParameterException;
 import by.stas.nms.exception.NoSuchElementException;
 import by.stas.nms.mapper.CommentMapper;
+import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
 import by.stas.nms.service.CommentService;
 import by.stas.nms.validator.CommentDtoValidator;
-import by.stas.nms.validator.NewsWithCommentsDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,24 +21,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static by.stas.nms.exception.ExceptionMessageKey.COMMENT_NOT_FOUND;
-import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
-import static by.stas.nms.exception.ExceptionMessageKey.BAD_ID_STRING;
+import static by.stas.nms.exception.ExceptionMessageKey.*;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
     private CommentRepository commentRepository;
     private NewsRepository newsRepository;
+    private Renovator<CommentDto> commentRenovator;
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, NewsRepository newsRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository, NewsRepository newsRepository, Renovator<CommentDto> commentRenovator) {
         this.commentRepository = commentRepository;
         this.newsRepository = newsRepository;
+        this.commentRenovator = commentRenovator;
     }
 
     @Override
-    @Transactional
     public CommentDto create(CommentDto object) {
         //set create date
         object.setDate(LocalDateTime.now());
@@ -54,6 +52,8 @@ public class CommentServiceImpl implements CommentService {
                 () -> new NoSuchElementException(NEWS_NOT_FOUND)
         );
         Comment commentToCreate = CommentMapper.INSTANCE.mapToEntity(object);
+        //In order to create new document with auto-generated _id id field must be null.
+        commentToCreate.setId(null);
         commentRepository.save(commentToCreate);
 
         return CommentMapper.INSTANCE.mapToDto(commentToCreate);
@@ -69,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
                 .toList();
 
         if (commentDtos.isEmpty()) {
-            throw new EmptyListRequestedException();
+            throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
         }
 
         return commentDtos;
@@ -88,15 +88,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional
     public CommentDto update(CommentDto object) {
         ExceptionHolder exceptionHolder = new ExceptionHolder();
 
         CommentDto existingComment = readById(object.getId());
-        if (object.getDate() == null) object.setDate(existingComment.getDate());
-        if (object.getText() == null) object.setText(existingComment.getText());
-        if (object.getUsername() == null) object.setUsername(existingComment.getUsername());
-        object.setNewsId(existingComment.getNewsId());
+        commentRenovator.updateObject(object,existingComment);
 
         CommentDtoValidator.isCommentUpdateDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
@@ -104,25 +100,22 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Comment commentToUpdate = CommentMapper.INSTANCE.mapToEntity(object);
-        commentToUpdate.setId(object.getId());
         commentRepository.save(commentToUpdate);
 
         return CommentMapper.INSTANCE.mapToDto(commentToUpdate);
     }
 
     @Override
-    @Transactional
     public void delete(String id) {
         validateIdString(id);
-
         commentRepository.findCommentById(id).orElseThrow(
                 () -> new NoSuchElementException(COMMENT_NOT_FOUND)
         );
 
         commentRepository.deleteCommentById(id);
     }
-
-    private void validateIdString(String id){
+    //todo create id stirng validator
+    private void validateIdString(String id) {
         if (!CommentDtoValidator.isIdStringValid(id)) {
             ExceptionHolder exceptionHolder = new ExceptionHolder();
             exceptionHolder.addException(BAD_ID_STRING);

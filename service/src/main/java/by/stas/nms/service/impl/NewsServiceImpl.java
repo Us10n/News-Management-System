@@ -12,6 +12,7 @@ import by.stas.nms.exception.NoSuchElementException;
 import by.stas.nms.mapper.CommentMapper;
 import by.stas.nms.mapper.NewsMapper;
 import by.stas.nms.mapper.NewsWithCommentsMapper;
+import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
 import by.stas.nms.service.NewsService;
@@ -19,52 +20,71 @@ import by.stas.nms.validator.NewsWithCommentsDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static by.stas.nms.exception.ExceptionMessageKey.BAD_ID_STRING;
-import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
+import static by.stas.nms.exception.ExceptionMessageKey.*;
 
 @Service
 public class NewsServiceImpl implements NewsService {
 
     private final NewsRepository newsRepository;
     private final CommentRepository commentRepository;
+    private final Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator;
 
     @Autowired
     public NewsServiceImpl(NewsRepository newsRepository,
-                           CommentRepository commentRepository) {
+                           CommentRepository commentRepository,
+                           Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator) {
         this.newsRepository = newsRepository;
         this.commentRepository = commentRepository;
+        this.newsWithCommentsDtoRenovator = newsWithCommentsDtoRenovator;
     }
 
     @Override
-    @Transactional
+    @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
     public NewsWithCommentsDto create(NewsWithCommentsDto object) {
         ExceptionHolder exceptionHolder = new ExceptionHolder();
 
         //set create date
-        object.setDate(LocalDateTime.now());
-        NewsWithCommentsDtoValidator.isNewsWithCommentsDtoValid(object, exceptionHolder);
+        LocalDateTime createDate = LocalDateTime.now();
+        object.setDate(createDate);
+        NewsWithCommentsDtoValidator.isNewsWithCommentsDtoPayloadValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
         News newsToCreate = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
+        //In order to create new document with auto-generated _id id field must be null.
+        newsToCreate.setId(null);
         newsRepository.save(newsToCreate);
 
         List<Comment> comments = object.getComments()
                 .stream()
-                .map(CommentMapper.INSTANCE::mapToEntity)
+                .map(commentDto -> {
+                    commentDto.setId(null);
+                    commentDto.setNewsId(newsToCreate.getId());
+                    commentDto.setDate(createDate);
+                    return CommentMapper.INSTANCE.mapToEntity(commentDto);
+                })
                 .toList();
         commentRepository.saveAll(comments);
 
-        return NewsWithCommentsMapper.INSTANCE.mapToDto(newsToCreate);
+        NewsWithCommentsDto createdNewsWithCommentDto = NewsWithCommentsMapper.INSTANCE.mapToDto(newsToCreate);
+        List<CommentDto> createdCommentDtos = comments
+                .stream()
+                .map(CommentMapper.INSTANCE::mapToDto).toList();
+        createdNewsWithCommentDto.setComments(createdCommentDtos);
+
+        return createdNewsWithCommentDto;
+    }
+
+    void test() {
+        throw new RuntimeException();
     }
 
     @Override
@@ -77,14 +97,13 @@ public class NewsServiceImpl implements NewsService {
                 .toList();
 
         if (newsDtos.isEmpty()) {
-            throw new EmptyListRequestedException();
+            throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
         }
 
         return newsDtos;
     }
 
     @Override
-    @Transactional
     public NewsWithCommentsDto readById(String id, Integer page, Integer limit) {
         validateIdString(id);
 
@@ -112,30 +131,32 @@ public class NewsServiceImpl implements NewsService {
     @Transactional
     public NewsWithCommentsDto update(NewsWithCommentsDto object) {
         ExceptionHolder exceptionHolder = new ExceptionHolder();
-
         validateIdString(object.getId());
 
-        Optional<News> optionalNews = newsRepository.findNewsById(object.getId());
-        News foundNews = optionalNews.orElseThrow(
-                () -> new NoSuchElementException(NEWS_NOT_FOUND)
-        );
-        if (object.getDate() == null) object.setDate(foundNews.getDate());
-        if (object.getText() == null) object.setText(foundNews.getText());
-        if (object.getTitle() == null) object.setText(foundNews.getTitle());
+        NewsWithCommentsDto existingNewsWithCommentsDto = readById(object.getId());
+        newsWithCommentsDtoRenovator.updateObject(object, existingNewsWithCommentsDto);
+
         NewsWithCommentsDtoValidator.isNewsWithCommentsDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        if (object.getComments().stream().allMatch(commentDto -> co))
+        News newNews = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
+        newsRepository.save(newNews);
 
-            return null;
+        return NewsWithCommentsMapper.INSTANCE.mapToDto(newNews);
     }
 
     @Override
     @Transactional
     public void delete(String id) {
         validateIdString(id);
+        newsRepository.findNewsById(id).orElseThrow(() -> {
+            throw new NoSuchElementException(NEWS_NOT_FOUND);
+        });
+
+        commentRepository.deleteCommentsByNewsId(id);
+        newsRepository.deleteById(id);
     }
 
     private void validateIdString(String id) {
@@ -144,42 +165,5 @@ public class NewsServiceImpl implements NewsService {
             exceptionHolder.addException(BAD_ID_STRING);
             throw new IncorrectParameterException(exceptionHolder);
         }
-    }
-
-    private List<CommentDto> replaceNewsCommentWithNewOnes(String newsId, List<CommentDto> newCommentDtos) {
-        List<Comment> existingComments = commentRepository.findCommentsByNewsId(newsId);
-
-
-        List<CommentDto> attachedComments = new ArrayList<>();
-        newComments.parallelStream().forEach(newComment -> {
-            Boolean[] alreadyExist = {false};
-            existingComments.parallelStream().forEach(existingComment -> {
-                if (newComment.equals(existingComment)) {
-                    alreadyExist[0] = true;
-                }
-            });
-            newComment.setNewsId(newsId);
-
-            if (!alreadyExist[0]) {
-                Comment comment = CommentMapper.INSTANCE.mapToEntity(newComment);
-                commentRepository.save(newComment);
-            }
-            attachedComments.add(newComment);
-        });
-        existingComments.parallelStream().forEach(existingComment -> {
-            AtomicBoolean existInNewComments = new AtomicBoolean(false);
-            newComments.parallelStream().forEach(newComment -> {
-                if (newComment.equals(existingComment)) {
-                    existInNewComments.set(true);
-                }
-            });
-            if (existInNewComments.getAcquire()) {
-                attachedComments.add(existingComment);
-            } else {
-
-                commentRepository.save()
-            }
-        });
-
     }
 }
