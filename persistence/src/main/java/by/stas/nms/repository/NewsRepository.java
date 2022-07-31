@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface NewsRepository extends MongoRepository<News,Long> {
+public interface NewsRepository extends MongoRepository<News, Long> {
     Optional<News> findNewsById(String id);
+
+    void deleteById(String id);
 }

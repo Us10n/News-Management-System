@@ -13,6 +13,5 @@ public interface CommentMapper {
 
     CommentDto mapToDto(Comment comment);
 
-    @Mapping(target = "id", ignore = true)
     Comment mapToEntity(CommentDto orderDto);
 }
