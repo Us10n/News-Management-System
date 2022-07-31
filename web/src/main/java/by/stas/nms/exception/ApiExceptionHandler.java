@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -69,8 +68,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Map<String, String>> handleArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, Locale locale) {
         Map<String, String> errorResponse = new HashMap<>();
-        String message = messageSource.getMessage(WRONG_ARGS_TYPE, new Object[]{ex.getName(), ex.getValue(), ex.getRequiredType()}, locale);
 
+        String message = messageSource.getMessage(WRONG_ARGS_TYPE, new Object[]{ex.getName(), ex.getValue(), ex.getRequiredType()}, locale);
         errorResponse.put(ERROR_MESSAGE, message);
         errorResponse.put(ERROR_CODE, HttpStatus.BAD_REQUEST.value() + VERSION);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -79,14 +78,18 @@ public class ApiExceptionHandler {
     @ExceptionHandler(EmptyListRequestedException.class)
     public ResponseEntity<Map<String, String>> handleEmptyListRequestedException(EmptyListRequestedException ex, Locale locale) {
         Map<String, String> errorResponse = new HashMap<>();
-        return new ResponseEntity<>(errorResponse, HttpStatus.OK);
+
+        String message = messageSource.getMessage(ex.getMessage(), null, locale);
+        errorResponse.put(ERROR_MESSAGE, message);
+        errorResponse.put(ERROR_CODE, HttpStatus.NOT_FOUND.value() + VERSION);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex, Locale locale) {
         Map<String, String> errorResponse = new HashMap<>();
-        String message = ex.getMessage();
 
+        String message = ex.getMessage();
         errorResponse.put(ERROR_MESSAGE, message);
         errorResponse.put(ERROR_CODE, HttpStatus.BAD_REQUEST.value() + VERSION);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);

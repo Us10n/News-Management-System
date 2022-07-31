@@ -2,5 +2,9 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: news-management-system
+  config:
+    import: configserver:http://localhost:8081
   profiles:
     active: dev
