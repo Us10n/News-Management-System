@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PersistenceAspect {
 
-    @Pointcut("within(by.stas.nms.repository.*)")
+    @Pointcut("target(org.springframework.data.mongodb.repository.MongoRepository)")
     public void dataAccessMethods() {
     }
 

@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ServiceAspect {
 
-    @Pointcut("within(by.stas.nms.service.*)")
+    @Pointcut("target(by.stas.nms.service.CRUDService)")
     public void dataAccessMethods() {
     }
 
