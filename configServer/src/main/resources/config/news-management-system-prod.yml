@@ -3,5 +3,11 @@ spring:
     mongodb:
       host: localhost
       port: 27017
-      database: firstTest
+      database: news-system-prod
       auto-index-creation: true
+
+logging:
+  file:
+    name: ./logs/log4j2.txt
+  level:
+    root: info
