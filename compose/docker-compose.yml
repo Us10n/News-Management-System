@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    command: ["--port", "27017" , "--replSet", "my-replica-set"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - "./scripts:/docker-entrypoint-initdb.d/"
+
