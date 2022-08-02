@@ -16,9 +16,12 @@ import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
 import by.stas.nms.service.NewsService;
+import by.stas.nms.validator.StringsValidator;
 import by.stas.nms.validator.NewsWithCommentsDtoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +30,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static by.stas.nms.exception.ExceptionMessageKey.*;
+import static by.stas.nms.exception.ExceptionMessageKey.NEWS_EMPTY_LIST;
+import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
 
 @Service
 public class NewsServiceImpl implements NewsService {
@@ -48,27 +52,29 @@ public class NewsServiceImpl implements NewsService {
     @Override
     @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
     public NewsWithCommentsDto create(NewsWithCommentsDto object) {
-        ExceptionHolder exceptionHolder = new ExceptionHolder();
-
-        //set create date
+        //Set create date to news and comments.
+        //In order to create new document with auto-generated _id field id field must be null.
         LocalDateTime createDate = LocalDateTime.now();
         object.setDate(createDate);
+        object.setId(null);
+        object.getComments().forEach(commentDto -> {
+            commentDto.setId(null);
+            commentDto.setDate(createDate);
+        });
+
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
         NewsWithCommentsDtoValidator.isNewsWithCommentsDtoPayloadValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
         News newsToCreate = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
-        //In order to create new document with auto-generated _id id field must be null.
-        newsToCreate.setId(null);
         newsRepository.save(newsToCreate);
 
         List<Comment> comments = object.getComments()
                 .stream()
                 .map(commentDto -> {
-                    commentDto.setId(null);
                     commentDto.setNewsId(newsToCreate.getId());
-                    commentDto.setDate(createDate);
                     return CommentMapper.INSTANCE.mapToEntity(commentDto);
                 })
                 .toList();
@@ -81,10 +87,6 @@ public class NewsServiceImpl implements NewsService {
         createdNewsWithCommentDto.setComments(createdCommentDtos);
 
         return createdNewsWithCommentDto;
-    }
-
-    void test() {
-        throw new RuntimeException();
     }
 
     @Override
@@ -104,8 +106,34 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public List<NewsDto> readAll(String term, Integer page, Integer limit) {
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
+        StringsValidator.isTermStringValid(term, exceptionHolder);
+        if (!exceptionHolder.getExceptionMessages().isEmpty()) {
+            throw new IncorrectParameterException(exceptionHolder);
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "score"));
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().matching(term);
+        List<NewsDto> newsDtos = newsRepository.findAllBy(criteria, pageRequest)
+                .stream()
+                .map(NewsMapper.INSTANCE::mapToDto)
+                .toList();
+
+        if (newsDtos.isEmpty()) {
+            throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
+        }
+
+        return newsDtos;
+    }
+
+    @Override
     public NewsWithCommentsDto readById(String id, Integer page, Integer limit) {
-        validateIdString(id);
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
+        StringsValidator.isIdStringValid(id, exceptionHolder);
+        if (!exceptionHolder.getExceptionMessages().isEmpty()) {
+            throw new IncorrectParameterException(exceptionHolder);
+        }
 
         Optional<News> optionalNews = newsRepository.findNewsById(id);
         News foundNews = optionalNews.orElseThrow(
@@ -130,12 +158,10 @@ public class NewsServiceImpl implements NewsService {
     @Override
     @Transactional
     public NewsWithCommentsDto update(NewsWithCommentsDto object) {
-        ExceptionHolder exceptionHolder = new ExceptionHolder();
-        validateIdString(object.getId());
-
         NewsWithCommentsDto existingNewsWithCommentsDto = readById(object.getId());
         newsWithCommentsDtoRenovator.updateObject(object, existingNewsWithCommentsDto);
 
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
         NewsWithCommentsDtoValidator.isNewsWithCommentsDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
@@ -150,20 +176,10 @@ public class NewsServiceImpl implements NewsService {
     @Override
     @Transactional
     public void delete(String id) {
-        validateIdString(id);
-        newsRepository.findNewsById(id).orElseThrow(() -> {
-            throw new NoSuchElementException(NEWS_NOT_FOUND);
-        });
+        //Check whether news with this id exist or not
+        readById(id);
 
         commentRepository.deleteCommentsByNewsId(id);
         newsRepository.deleteById(id);
-    }
-
-    private void validateIdString(String id) {
-        if (!NewsWithCommentsDtoValidator.isIdStringValid(id)) {
-            ExceptionHolder exceptionHolder = new ExceptionHolder();
-            exceptionHolder.addException(BAD_ID_STRING);
-            throw new IncorrectParameterException(exceptionHolder);
-        }
     }
 }

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CommentService extends CRUDService<CommentDto, String> {
     List<CommentDto> readAll(Integer page, Integer limit);
+    List<CommentDto> readAll(String term,Integer page, Integer limit);
 }

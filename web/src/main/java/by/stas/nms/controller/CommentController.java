@@ -32,9 +32,17 @@ public class CommentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CommentDto> readComments(@RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
-                                         @RequestParam(name = "limit", defaultValue = "10") @Positive Integer limit) {
+    public List<CommentDto> readAllComments(@RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
+                                            @RequestParam(name = "limit", defaultValue = "10") @Positive Integer limit) {
         return commentService.readAll(page, limit);
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CommentDto> readAllCommentsByTerm(@RequestParam(name = "term", defaultValue = "") String term,
+                                                  @RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
+                                                  @RequestParam(name = "limit", defaultValue = "10") @Positive Integer limit) {
+        return commentService.readAll(term, page, limit);
     }
 
     @GetMapping("/{id}")

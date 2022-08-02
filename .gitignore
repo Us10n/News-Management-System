@@ -11,3 +11,5 @@
 /service/build
 /web/build
 /configServer/build
+/logs
+/test

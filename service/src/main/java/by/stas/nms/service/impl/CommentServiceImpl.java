@@ -12,10 +12,12 @@ import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
 import by.stas.nms.service.CommentService;
 import by.stas.nms.validator.CommentDtoValidator;
+import by.stas.nms.validator.StringsValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto create(CommentDto object) {
-        //set create date
+        //Set create date to comment
         object.setDate(LocalDateTime.now());
 
         ExceptionHolder exceptionHolder = new ExceptionHolder();
@@ -76,8 +78,34 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public List<CommentDto> readAll(String term, Integer page, Integer limit) {
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
+        StringsValidator.isTermStringValid(term, exceptionHolder);
+        if (!exceptionHolder.getExceptionMessages().isEmpty()) {
+            throw new IncorrectParameterException(exceptionHolder);
+        }
+
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "score"));
+        TextCriteria criteria = TextCriteria.forDefaultLanguage().matching(term);
+        List<CommentDto> commentDtos = commentRepository.findAllBy(criteria, pageRequest)
+                .stream()
+                .map(CommentMapper.INSTANCE::mapToDto)
+                .toList();
+
+        if (commentDtos.isEmpty()) {
+            throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
+        }
+
+        return commentDtos;
+    }
+
+    @Override
     public CommentDto readById(String id) {
-        validateIdString(id);
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
+        StringsValidator.isIdStringValid(id, exceptionHolder);
+        if (!exceptionHolder.getExceptionMessages().isEmpty()) {
+            throw new IncorrectParameterException(exceptionHolder);
+        }
 
         Optional<Comment> optionalComment = commentRepository.findCommentById(id);
         Comment foundComment = optionalComment.orElseThrow(
@@ -89,11 +117,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto update(CommentDto object) {
-        ExceptionHolder exceptionHolder = new ExceptionHolder();
-
         CommentDto existingComment = readById(object.getId());
-        commentRenovator.updateObject(object,existingComment);
+        commentRenovator.updateObject(object, existingComment);
 
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
         CommentDtoValidator.isCommentUpdateDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
@@ -107,19 +134,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void delete(String id) {
-        validateIdString(id);
-        commentRepository.findCommentById(id).orElseThrow(
-                () -> new NoSuchElementException(COMMENT_NOT_FOUND)
-        );
+        //Check whether comment with this id exist or not
+        readById(id);
 
         commentRepository.deleteCommentById(id);
-    }
-    //todo create id stirng validator
-    private void validateIdString(String id) {
-        if (!CommentDtoValidator.isIdStringValid(id)) {
-            ExceptionHolder exceptionHolder = new ExceptionHolder();
-            exceptionHolder.addException(BAD_ID_STRING);
-            throw new IncorrectParameterException(exceptionHolder);
-        }
     }
 }

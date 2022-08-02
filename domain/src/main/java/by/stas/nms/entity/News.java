@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class News {
+
     @MongoId(FieldType.OBJECT_ID)
     private String id;
 

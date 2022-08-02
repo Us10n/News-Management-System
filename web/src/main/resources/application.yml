@@ -8,3 +8,9 @@ spring:
     import: configserver:http://localhost:8081
   profiles:
     active: dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

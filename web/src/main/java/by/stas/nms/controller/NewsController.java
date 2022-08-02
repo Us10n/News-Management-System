@@ -2,8 +2,10 @@ package by.stas.nms.controller;
 
 import by.stas.nms.dto.NewsDto;
 import by.stas.nms.dto.NewsWithCommentsDto;
+import by.stas.nms.logging.ServiceAspect;
 import by.stas.nms.service.NewsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +38,14 @@ public class NewsController {
     public List<NewsDto> readAllNews(@RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
                                      @RequestParam(name = "limit", defaultValue = "10") @Positive Integer limit) {
         return newsService.readAll(page, limit);
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<NewsDto> readAllNewsByTerm(@RequestParam(name = "term",defaultValue = "") String term,
+                                           @RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
+                                           @RequestParam(name = "limit", defaultValue = "10") @Positive Integer limit) {
+        return newsService.readAll(term, page, limit);
     }
 
     @GetMapping("/{id}")
