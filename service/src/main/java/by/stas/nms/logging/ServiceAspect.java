@@ -42,6 +42,6 @@ public class ServiceAspect {
 
     @AfterThrowing(value = "dataAccessMethods()", throwing = "e")
     public void logAfterThrowingException(JoinPoint jp, Exception e) {
-        log.error("Method " + jp.getSignature() + " throw " + e);
+        log.error("Method " + jp.getSignature() + " throw " + e.getClass());
     }
 }

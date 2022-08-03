@@ -5,7 +5,10 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -35,12 +38,26 @@ public class ControllerAspect {
     }
 
     @AfterReturning(value = "dataAccessMethods()", returning = "object")
-    public void logAfterReturningValue(JoinPoint jp, Object object) {
-        log.debug("Method " + jp.getSignature() + " successfully executed and return value [" + object + "]");
+    public void logAfterReturningValue(Object object) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        StringBuilder logString = new StringBuilder(request.getMethod()).append(" ")
+                .append(request.getRequestURL());
+        if (request.getQueryString() != null) {
+            logString.append("?").append(request.getQueryString());
+        }
+        logString.append(" Response body: ").append(object);
+        log.debug(logString.toString());
     }
 
     @AfterThrowing(value = "dataAccessMethods()", throwing = "e")
-    public void logAfterThrowingException(JoinPoint jp, Exception e) {
-        log.error("Method " + jp.getSignature() + " throw " + e);
+    public void logAfterThrowingException(Exception e) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        StringBuilder logString = new StringBuilder(request.getMethod()).append(" ")
+                .append(request.getRequestURL());
+        if (request.getQueryString() != null) {
+            logString.append("?").append(request.getQueryString());
+        }
+        logString.append(" Throws: ").append(e.getClass());
+        log.error(logString.toString());
     }
 }
