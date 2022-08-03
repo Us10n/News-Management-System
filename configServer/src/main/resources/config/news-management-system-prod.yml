@@ -10,4 +10,12 @@ logging:
   file:
     name: ./logs/log4j2.txt
   level:
-    root: info
+    by:
+      stas:
+        nms: info
+
+hazelcast:
+  cluster:
+    name: news-management-cluster
+  map:
+    ttl: 10

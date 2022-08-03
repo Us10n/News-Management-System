@@ -13,3 +13,9 @@ logging:
     by:
       stas:
         nms: debug
+
+hazelcast:
+  cluster:
+    name: news-management-cluster
+  map:
+    ttl: 20

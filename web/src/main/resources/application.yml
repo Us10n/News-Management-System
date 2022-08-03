@@ -5,9 +5,10 @@ spring:
   application:
     name: news-management-system
   config:
-    import: configserver:http://localhost:8081
+    import: configserver:http://localhost:8888
   profiles:
     active: dev
+
 
 management:
   endpoints:

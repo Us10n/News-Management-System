@@ -4,5 +4,3 @@ include 'service'
 include 'persistence'
 include 'domain'
 include 'configServer'
-include 'test'
-

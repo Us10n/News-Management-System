@@ -1,5 +1,6 @@
 package by.stas.nms.service.impl;
 
+import by.stas.nms.cache.CustomCacheManager;
 import by.stas.nms.dto.CommentDto;
 import by.stas.nms.dto.NewsDto;
 import by.stas.nms.dto.NewsWithCommentsDto;
@@ -16,9 +17,9 @@ import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
 import by.stas.nms.service.NewsService;
-import by.stas.nms.validator.StringsValidator;
 import by.stas.nms.validator.NewsWithCommentsDtoValidator;
-import org.springframework.beans.factory.annotation.Autowired;
+import by.stas.nms.validator.StringsValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
@@ -27,27 +28,24 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static by.stas.nms.exception.ExceptionMessageKey.NEWS_EMPTY_LIST;
 import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
+
+    private final static String NEWS_CACHE_NAME = "news";
 
     private final NewsRepository newsRepository;
     private final CommentRepository commentRepository;
     private final Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator;
-
-    @Autowired
-    public NewsServiceImpl(NewsRepository newsRepository,
-                           CommentRepository commentRepository,
-                           Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator) {
-        this.newsRepository = newsRepository;
-        this.commentRepository = commentRepository;
-        this.newsWithCommentsDtoRenovator = newsWithCommentsDtoRenovator;
-    }
+    private final CustomCacheManager cacheManager;
 
     @Override
     @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
@@ -91,15 +89,27 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public List<NewsDto> readAll(Integer page, Integer limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit);
-        List<NewsDto> newsDtos = newsRepository.findAll(pageRequest)
-                .getContent()
-                .stream()
-                .map(NewsMapper.INSTANCE::mapToDto)
-                .toList();
+        String key = cacheManager.generateKeyForMap(page, limit);
 
-        if (newsDtos.isEmpty()) {
-            throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
+        Object[] cachedNews = cacheManager.getCollectionFromMap(NEWS_CACHE_NAME, key);
+        List<NewsDto> newsDtos;
+        if (Objects.nonNull(cachedNews)) {
+            newsDtos = Arrays.stream(cachedNews)
+                    .map(object -> (NewsDto) object)
+                    .toList();
+        } else {
+            PageRequest pageRequest = PageRequest.of(page, limit);
+            newsDtos = newsRepository.findAll(pageRequest)
+                    .getContent()
+                    .stream()
+                    .map(NewsMapper.INSTANCE::mapToDto)
+                    .toList();
+
+            if (newsDtos.isEmpty()) {
+                throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
+            }
+
+            cacheManager.putCollectionToMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
         }
 
         return newsDtos;
@@ -113,15 +123,27 @@ public class NewsServiceImpl implements NewsService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "score"));
-        TextCriteria criteria = TextCriteria.forDefaultLanguage().matching(term);
-        List<NewsDto> newsDtos = newsRepository.findAllBy(criteria, pageRequest)
-                .stream()
-                .map(NewsMapper.INSTANCE::mapToDto)
-                .toList();
+        String key = cacheManager.generateKeyForMap(term, page, limit);
 
-        if (newsDtos.isEmpty()) {
-            throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
+        Object[] cachedNews = cacheManager.getCollectionFromMap(NEWS_CACHE_NAME, key);
+        List<NewsDto> newsDtos;
+        if (Objects.nonNull(cachedNews)) {
+            newsDtos = Arrays.stream(cachedNews)
+                    .map(object -> (NewsDto) object)
+                    .toList();
+        } else {
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "score"));
+            TextCriteria criteria = TextCriteria.forDefaultLanguage().matching(term);
+            newsDtos = newsRepository.findAllBy(criteria, pageRequest)
+                    .stream()
+                    .map(NewsMapper.INSTANCE::mapToDto)
+                    .toList();
+
+            if (newsDtos.isEmpty()) {
+                throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
+            }
+
+            cacheManager.putCollectionToMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
         }
 
         return newsDtos;
@@ -135,17 +157,27 @@ public class NewsServiceImpl implements NewsService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        Optional<News> optionalNews = newsRepository.findNewsById(id);
-        News foundNews = optionalNews.orElseThrow(
-                () -> new NoSuchElementException(NEWS_NOT_FOUND)
-        );
+        String key = cacheManager.generateKeyForMap(id, page, limit);
 
-        PageRequest pageRequest = PageRequest.of(page, limit);
-        List<Comment> foundComments = commentRepository.findCommentsByNewsId(pageRequest, id).getContent();
+        Optional<Object> cachedNews = cacheManager.getSingleObjectFromMap(NEWS_CACHE_NAME, key);
+        NewsWithCommentsDto newsWithCommentsDto;
+        if (cachedNews.isPresent()) {
+            newsWithCommentsDto = (NewsWithCommentsDto) cachedNews.get();
+        } else {
+            Optional<News> optionalNews = newsRepository.findNewsById(id);
+            News foundNews = optionalNews.orElseThrow(
+                    () -> new NoSuchElementException(NEWS_NOT_FOUND)
+            );
 
-        NewsWithCommentsDto newsWithCommentsDto = NewsWithCommentsMapper.INSTANCE.mapToDto(foundNews);
-        List<CommentDto> commentDtos = foundComments.stream().map(CommentMapper.INSTANCE::mapToDto).toList();
-        newsWithCommentsDto.setComments(commentDtos);
+            PageRequest pageRequest = PageRequest.of(page, limit);
+            List<Comment> foundComments = commentRepository.findCommentsByNewsId(pageRequest, id).getContent();
+
+            newsWithCommentsDto = NewsWithCommentsMapper.INSTANCE.mapToDto(foundNews);
+            List<CommentDto> commentDtos = foundComments.stream().map(CommentMapper.INSTANCE::mapToDto).toList();
+            newsWithCommentsDto.setComments(commentDtos);
+
+            cacheManager.putSingleObjectToMap(NEWS_CACHE_NAME, key, newsWithCommentsDto);
+        }
 
         return newsWithCommentsDto;
     }

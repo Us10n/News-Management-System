@@ -9,4 +9,20 @@ services:
       - "27017:27017"
     volumes:
       - "./scripts:/docker-entrypoint-initdb.d/"
+    mem_limit: 200m
+  
+  hazelcast:
+    image: hazelcast/hazelcast:5.1.3
+    container_name: hazelcast
+    ports:
+      - "5701:5701"
+    mem_limit: 800m
+    environment:
+      - HZ_CLUSTERNAME=news-management-cluster
 
+  hazelcast_manager:
+    image: hazelcast/management-center:latest
+    container_name: hazelcast_manager
+    ports:
+      - "8083:8080"
+    mem_limit: 1000m
