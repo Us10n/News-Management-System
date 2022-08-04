@@ -12,7 +12,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
-
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.8'
 }
 
 test {

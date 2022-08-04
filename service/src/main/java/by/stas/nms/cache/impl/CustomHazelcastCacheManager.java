@@ -21,32 +21,37 @@ public class CustomHazelcastCacheManager implements CustomCacheManager {
     }
 
     @Override
-    public void putSingleObjectToMap(String name, String key, Object object) {
+    public void putObjectToCacheMap(String name, String key, Object object) {
         hazelcastInstance.getMap(name).put(key, object, ttl, TimeUnit.SECONDS);
     }
 
     @Override
-    public void putCollectionToMap(String name, String key, Object[] objects) {
+    public void putCollectionToCacheMap(String name, String key, Object[] objects) {
         hazelcastInstance.getMap(name).put(key, objects, ttl, TimeUnit.SECONDS);
     }
 
     @Override
-    public Optional<Object> getSingleObjectFromMap(String name, String key) {
+    public Optional<Object> getObjectFromCacheMap(String name, String key) {
         Object extractedObject = hazelcastInstance.getMap(name).get(key);
         return Optional.ofNullable(extractedObject);
     }
 
     @Override
-    public Object[] getCollectionFromMap(String name, String key) {
+    public Object[] getCollectionFromCacheMap(String name, String key) {
         return (Object[]) hazelcastInstance.getMap(name).get(key);
     }
 
     @Override
-    public String generateKeyForMap(Object... objects) {
+    public String generateKeyForCacheMap(Object... objects) {
         long key = 0L;
         for (Object object : objects) {
             key += object.hashCode();
         }
         return String.valueOf(Long.hashCode(key));
+    }
+
+    @Override
+    public void invalidateCacheMap(String cacheName) {
+        hazelcastInstance.getMap(cacheName).clear();
     }
 }

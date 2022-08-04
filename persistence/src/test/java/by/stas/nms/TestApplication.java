@@ -2,12 +2,10 @@ package by.stas.nms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.config.server.EnableConfigServer;
 
 @SpringBootApplication
-@EnableConfigServer
-public class ConfigApplication {
+public class TestApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ConfigApplication.class, args);
+        SpringApplication.run(TestApplication.class, args);
     }
 }

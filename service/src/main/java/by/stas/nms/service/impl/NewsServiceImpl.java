@@ -41,6 +41,7 @@ import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
 public class NewsServiceImpl implements NewsService {
 
     private final static String NEWS_CACHE_NAME = "news";
+    private final static String COMMENTS_CACHE_NAME = "comments";
 
     private final NewsRepository newsRepository;
     private final CommentRepository commentRepository;
@@ -78,6 +79,10 @@ public class NewsServiceImpl implements NewsService {
                 .toList();
         commentRepository.saveAll(comments);
 
+        //Invalidate cache due to objects creation
+        cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
+        cacheManager.invalidateCacheMap(NEWS_CACHE_NAME);
+
         NewsWithCommentsDto createdNewsWithCommentDto = NewsWithCommentsMapper.INSTANCE.mapToDto(newsToCreate);
         List<CommentDto> createdCommentDtos = comments
                 .stream()
@@ -89,9 +94,9 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public List<NewsDto> readAll(Integer page, Integer limit) {
-        String key = cacheManager.generateKeyForMap(page, limit);
+        String key = cacheManager.generateKeyForCacheMap(page, limit);
 
-        Object[] cachedNews = cacheManager.getCollectionFromMap(NEWS_CACHE_NAME, key);
+        Object[] cachedNews = cacheManager.getCollectionFromCacheMap(NEWS_CACHE_NAME, key);
         List<NewsDto> newsDtos;
         if (Objects.nonNull(cachedNews)) {
             newsDtos = Arrays.stream(cachedNews)
@@ -109,7 +114,7 @@ public class NewsServiceImpl implements NewsService {
                 throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
             }
 
-            cacheManager.putCollectionToMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
+            cacheManager.putCollectionToCacheMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
         }
 
         return newsDtos;
@@ -123,9 +128,9 @@ public class NewsServiceImpl implements NewsService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        String key = cacheManager.generateKeyForMap(term, page, limit);
+        String key = cacheManager.generateKeyForCacheMap(term, page, limit);
 
-        Object[] cachedNews = cacheManager.getCollectionFromMap(NEWS_CACHE_NAME, key);
+        Object[] cachedNews = cacheManager.getCollectionFromCacheMap(NEWS_CACHE_NAME, key);
         List<NewsDto> newsDtos;
         if (Objects.nonNull(cachedNews)) {
             newsDtos = Arrays.stream(cachedNews)
@@ -143,7 +148,7 @@ public class NewsServiceImpl implements NewsService {
                 throw new EmptyListRequestedException(NEWS_EMPTY_LIST);
             }
 
-            cacheManager.putCollectionToMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
+            cacheManager.putCollectionToCacheMap(NEWS_CACHE_NAME, key, newsDtos.toArray());
         }
 
         return newsDtos;
@@ -157,9 +162,9 @@ public class NewsServiceImpl implements NewsService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        String key = cacheManager.generateKeyForMap(id, page, limit);
+        String key = cacheManager.generateKeyForCacheMap(id, page, limit);
 
-        Optional<Object> cachedNews = cacheManager.getSingleObjectFromMap(NEWS_CACHE_NAME, key);
+        Optional<Object> cachedNews = cacheManager.getObjectFromCacheMap(NEWS_CACHE_NAME, key);
         NewsWithCommentsDto newsWithCommentsDto;
         if (cachedNews.isPresent()) {
             newsWithCommentsDto = (NewsWithCommentsDto) cachedNews.get();
@@ -176,7 +181,7 @@ public class NewsServiceImpl implements NewsService {
             List<CommentDto> commentDtos = foundComments.stream().map(CommentMapper.INSTANCE::mapToDto).toList();
             newsWithCommentsDto.setComments(commentDtos);
 
-            cacheManager.putSingleObjectToMap(NEWS_CACHE_NAME, key, newsWithCommentsDto);
+            cacheManager.putObjectToCacheMap(NEWS_CACHE_NAME, key, newsWithCommentsDto);
         }
 
         return newsWithCommentsDto;
@@ -194,13 +199,16 @@ public class NewsServiceImpl implements NewsService {
         newsWithCommentsDtoRenovator.updateObject(object, existingNewsWithCommentsDto);
 
         ExceptionHolder exceptionHolder = new ExceptionHolder();
-        NewsWithCommentsDtoValidator.isNewsWithCommentsDtoValid(object, exceptionHolder);
+        NewsWithCommentsDtoValidator.isNewsWithCommentsUpdateDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
         News newNews = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
         newsRepository.save(newNews);
+
+        //Invalidate cache due to object update
+        cacheManager.invalidateCacheMap(NEWS_CACHE_NAME);
 
         return NewsWithCommentsMapper.INSTANCE.mapToDto(newNews);
     }
@@ -213,5 +221,9 @@ public class NewsServiceImpl implements NewsService {
 
         commentRepository.deleteCommentsByNewsId(id);
         newsRepository.deleteById(id);
+
+        //Invalidate cache due to objects removing
+        cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
+        cacheManager.invalidateCacheMap(NEWS_CACHE_NAME);
     }
 }

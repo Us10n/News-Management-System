@@ -11,41 +11,20 @@ import static by.stas.nms.exception.ExceptionMessageKey.*;
 
 @UtilityClass
 public class CommentDtoValidator {
-    private static final Integer MIN_TEXT_LENGTH = 1;
-    /* Username length must be between 5 and 25. Latin characters only.
-       Username can have '.' , '_' and numbers, but '.' and '_' must not be neighbours or go in a row ("._" AND "_." AND ".." AND "__" is forbidden)
-       Valid example: "valid.username_12" */
-    private static final String VALID_USERNAME_REGEX = "^(?=[a-zA-Z0-9._]{5,25}$)(?!.*[_.]{2})[^_.].*[^_.]$";
 
-    public boolean isDateValid(String date) {
-        try {
-            LocalDateTime.parse(date);
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean isTextValid(String text) {
-        return text != null && text.length() > MIN_TEXT_LENGTH;
-    }
-
-    public boolean isUsernameValid(String username) {
-        return username != null && username.matches(VALID_USERNAME_REGEX);
-    }
 
     public void isCommentDtoPayloadValid(CommentDto commentDto, ExceptionHolder exceptionHolder) {
         if (commentDto == null) {
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);
             return;
         }
-        if (!isDateValid(commentDto.getDate().toString())) {
+        if (!StringsValidator.isDateValid(commentDto.getDate().toString())) {
             exceptionHolder.addException(BAD_COMMENT_DATE, commentDto.getDate());
         }
-        if (!isTextValid(commentDto.getText())) {
+        if (!StringsValidator.isTextValid(commentDto.getText())) {
             exceptionHolder.addException(BAD_COMMENT_TEXT, commentDto.getText());
         }
-        if (!isUsernameValid(commentDto.getUsername())) {
+        if (!StringsValidator.isUsernameValid(commentDto.getUsername())) {
             exceptionHolder.addException(BAD_COMMENT_USERNAME, commentDto.getUsername());
         }
     }

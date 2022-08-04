@@ -1,0 +1,15 @@
+#spring:
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: news-system-test
+#      auto-index-creation: true
+
+spring:
+  cloud:
+    config:
+      enabled: false
+  mongodb:
+    embedded:
+      version: 4.0.2

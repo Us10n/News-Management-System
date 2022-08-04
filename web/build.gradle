@@ -1,3 +1,16 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.0'
+}
+
+springBoot {
+
+}
+
+bootJar{
+    mainClass = "by.stas.nms.NewsManagementApplication"
+    archivesBaseName= "nms-application"
+    destinationDirectory= file("../compose/")
+}
 
 dependencies {
     implementation project(':domain')

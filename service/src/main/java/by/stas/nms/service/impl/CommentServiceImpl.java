@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -58,14 +59,17 @@ public class CommentServiceImpl implements CommentService {
         commentToCreate.setId(null);
         commentRepository.save(commentToCreate);
 
+        //Invalidate cache due to new object creation
+        cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
+
         return CommentMapper.INSTANCE.mapToDto(commentToCreate);
     }
 
     @Override
     public List<CommentDto> readAll(Integer page, Integer limit) {
-        String key = cacheManager.generateKeyForMap(page, limit);
+        String key = cacheManager.generateKeyForCacheMap(page, limit);
 
-        Object[] cachedComments = cacheManager.getCollectionFromMap(COMMENTS_CACHE_NAME, key);
+        Object[] cachedComments = cacheManager.getCollectionFromCacheMap(COMMENTS_CACHE_NAME, key);
         List<CommentDto> commentDtos;
         if (Objects.nonNull(cachedComments)) {
             commentDtos = Arrays.stream(cachedComments)
@@ -83,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
                 throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
             }
 
-            cacheManager.putCollectionToMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
+            cacheManager.putCollectionToCacheMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
         }
 
         return commentDtos;
@@ -97,9 +101,9 @@ public class CommentServiceImpl implements CommentService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        String key = cacheManager.generateKeyForMap(term, page, limit);
+        String key = cacheManager.generateKeyForCacheMap(term, page, limit);
 
-        Object[] cachedComments = cacheManager.getCollectionFromMap(COMMENTS_CACHE_NAME, key);
+        Object[] cachedComments = cacheManager.getCollectionFromCacheMap(COMMENTS_CACHE_NAME, key);
         List<CommentDto> commentDtos;
         if (Objects.nonNull(cachedComments)) {
             commentDtos = Arrays.stream(cachedComments)
@@ -117,7 +121,7 @@ public class CommentServiceImpl implements CommentService {
                 throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
             }
 
-            cacheManager.putCollectionToMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
+            cacheManager.putCollectionToCacheMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
         }
 
         return commentDtos;
@@ -131,9 +135,9 @@ public class CommentServiceImpl implements CommentService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        String key = cacheManager.generateKeyForMap(id);
+        String key = cacheManager.generateKeyForCacheMap(id);
 
-        Optional<Object> cachedComment = cacheManager.getSingleObjectFromMap(COMMENTS_CACHE_NAME, key);
+        Optional<Object> cachedComment = cacheManager.getObjectFromCacheMap(COMMENTS_CACHE_NAME, key);
         CommentDto commentDto;
         if (cachedComment.isPresent()) {
             commentDto = (CommentDto) cachedComment.get();
@@ -146,13 +150,14 @@ public class CommentServiceImpl implements CommentService {
 
             commentDto = CommentMapper.INSTANCE.mapToDto(foundComment);
 
-            cacheManager.putSingleObjectToMap(COMMENTS_CACHE_NAME, key, commentDto);
+            cacheManager.putObjectToCacheMap(COMMENTS_CACHE_NAME, key, commentDto);
         }
 
         return commentDto;
     }
 
     @Override
+    @Transactional
     public CommentDto update(CommentDto object) {
         CommentDto existingComment = readById(object.getId());
         commentRenovator.updateObject(object, existingComment);
@@ -166,6 +171,9 @@ public class CommentServiceImpl implements CommentService {
         Comment commentToUpdate = CommentMapper.INSTANCE.mapToEntity(object);
         commentRepository.save(commentToUpdate);
 
+        //Invalidate cache due to object update
+        cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
+
         return CommentMapper.INSTANCE.mapToDto(commentToUpdate);
     }
 
@@ -175,5 +183,8 @@ public class CommentServiceImpl implements CommentService {
         readById(id);
 
         commentRepository.deleteCommentById(id);
+
+        //Invalidate cache due to object removing
+        cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
     }
 }
