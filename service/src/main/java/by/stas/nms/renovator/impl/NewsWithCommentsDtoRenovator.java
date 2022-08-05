@@ -31,7 +31,7 @@ public class NewsWithCommentsDtoRenovator implements Renovator<NewsWithCommentsD
             newObject.setText(oldObject.getText());
         }
         if (newObject.getTitle() == null) {
-            newObject.setText(oldObject.getTitle());
+            newObject.setTitle(oldObject.getTitle());
         }
         if (newObject.getComments() == null) {
             List<CommentDto> existingCommentDtos = commentRepository.findCommentsByNewsId(newObject.getId())
@@ -50,6 +50,7 @@ public class NewsWithCommentsDtoRenovator implements Renovator<NewsWithCommentsD
         List<Comment> newComments = newCommentDtos.stream()
                 .map(commentDto -> {
                     commentDto.setId(null);
+                    commentDto.setNewsId(newsId);
                     return CommentMapper.INSTANCE.mapToEntity(commentDto);
                 })
                 .collect(Collectors.toList());

@@ -7,11 +7,19 @@
 #      auto-index-creation: true
 
 spring:
+  #  application:
+  #    name: news-management-system
+  #  config:
+  #    import: configserver:http://localhost:8888
   cloud:
     config:
       enabled: false
   mongodb:
     embedded:
       version: 4.0.2
+  data:
+    mongodb:
+      auto-index-creation: true
   profiles:
     active: test
+

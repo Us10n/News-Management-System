@@ -1,12 +1,12 @@
 package by.stas.nms.service.impl;
 
+import by.stas.nms.cache.CustomCacheManager;
 import by.stas.nms.dto.CommentDto;
 import by.stas.nms.entity.Comment;
-import by.stas.nms.exception.EmptyListRequestedException;
+import by.stas.nms.exception.EmptyObjectPassedException;
 import by.stas.nms.exception.ExceptionHolder;
 import by.stas.nms.exception.IncorrectParameterException;
 import by.stas.nms.exception.NoSuchElementException;
-import by.stas.nms.cache.CustomCacheManager;
 import by.stas.nms.mapper.CommentMapper;
 import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -42,9 +43,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto create(CommentDto object) {
-        //Set create date to comment
-        object.setDate(LocalDateTime.now());
-
         ExceptionHolder exceptionHolder = new ExceptionHolder();
         CommentDtoValidator.isCommentCreateDtoValid(object, exceptionHolder);
         if (!exceptionHolder.getExceptionMessages().isEmpty()) {
@@ -57,6 +55,8 @@ public class CommentServiceImpl implements CommentService {
         Comment commentToCreate = CommentMapper.INSTANCE.mapToEntity(object);
         //In order to create new document with auto-generated _id id field must be null.
         commentToCreate.setId(null);
+        //Set create date to comment
+        commentToCreate.setDate(LocalDateTime.now());
         commentRepository.save(commentToCreate);
 
         //Invalidate cache due to new object creation
@@ -82,10 +82,6 @@ public class CommentServiceImpl implements CommentService {
                     .stream()
                     .map(CommentMapper.INSTANCE::mapToDto)
                     .toList();
-
-            if (commentDtos.isEmpty()) {
-                throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
-            }
 
             cacheManager.putCollectionToCacheMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
         }
@@ -116,10 +112,6 @@ public class CommentServiceImpl implements CommentService {
                     .stream()
                     .map(CommentMapper.INSTANCE::mapToDto)
                     .toList();
-
-            if (commentDtos.isEmpty()) {
-                throw new EmptyListRequestedException(COMMENT_EMPTY_LIST);
-            }
 
             cacheManager.putCollectionToCacheMap(COMMENTS_CACHE_NAME, key, commentDtos.toArray());
         }
@@ -157,9 +149,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional
-    public CommentDto update(CommentDto object) {
-        CommentDto existingComment = readById(object.getId());
+    @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
+    public CommentDto update(String id, CommentDto object) {
+        if (!isUpdateObjectContainNewValues(object)) {
+            throw new EmptyObjectPassedException(EMPTY_COMMENT_PASSED);
+        }
+
+        CommentDto existingComment = readById(id);
+        object.setId(id);
         commentRenovator.updateObject(object, existingComment);
 
         ExceptionHolder exceptionHolder = new ExceptionHolder();
@@ -175,6 +172,13 @@ public class CommentServiceImpl implements CommentService {
         cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
 
         return CommentMapper.INSTANCE.mapToDto(commentToUpdate);
+    }
+
+    private boolean isUpdateObjectContainNewValues(CommentDto object) {
+        return Objects.nonNull(object) && (
+                Objects.nonNull(object.getDate())
+                        || Objects.nonNull(object.getText())
+                        || Objects.nonNull(object.getUsername()));
     }
 
     @Override

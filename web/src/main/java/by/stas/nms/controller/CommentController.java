@@ -55,8 +55,7 @@ public class CommentController {
     @ResponseStatus(HttpStatus.OK)
     public CommentDto updateComment(@PathVariable String id,
                                     @RequestBody CommentDto commentDto) {
-        commentDto.setId(id);
-        return commentService.update(commentDto);
+        return commentService.update(id, commentDto);
     }
 
     @DeleteMapping("/{id}")

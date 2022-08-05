@@ -60,8 +60,7 @@ public class NewsController {
     @ResponseStatus(HttpStatus.OK)
     public NewsWithCommentsDto updateNewsById(@PathVariable String id,
                                               @RequestBody NewsWithCommentsDto newsDto) {
-        newsDto.setId(id);
-        return newsService.update(newsDto);
+        return newsService.update(id,newsDto);
     }
 
     @DeleteMapping("/{id}")

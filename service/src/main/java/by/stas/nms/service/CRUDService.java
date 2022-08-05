@@ -29,7 +29,7 @@ public interface CRUDService<T,R> {
      * @param object object with new values
      * @return instance of updated object
      */
-    T update(T object);
+    T update(R id,T object);
 
     /**
      * Delete T object specified by id.
