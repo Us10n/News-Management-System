@@ -24,7 +24,7 @@ class CommentDtoValidatorTest {
     }
 
     /**
-     * Payload consists of next fields: date, text, username. Payload fields are validated using StringsValidator.
+     * Payload consists of next fields: text, username. Payload fields are validated using StringsValidator.
      */
     @ParameterizedTest
     @MethodSource("provideInvalidCommentDtosPayload")
@@ -35,7 +35,7 @@ class CommentDtoValidatorTest {
     }
 
     /**
-     * CreateDto consists of payload part and news_id field. CreateDto fields are validated using above tested methods.
+     * CreateDto consists of payload part and news_id field . CreateDto fields are validated using above tested methods.
      */
     @ParameterizedTest
     @MethodSource("provideValidCommentCreateDtos")
@@ -57,7 +57,7 @@ class CommentDtoValidatorTest {
     }
 
     /**
-     * UpdateDto consists of Create Dto part and id field. UpdateDto fields are validated using above tested methods.
+     * UpdateDto consists of Create Dto part, id and date fields. UpdateDto fields are validated using above tested methods.
      */
     @ParameterizedTest
     @MethodSource("provideValidCommentUpdateDtos")
@@ -68,7 +68,7 @@ class CommentDtoValidatorTest {
     }
 
     /**
-     * UpdateDto consists of Create Dto part and id field. UpdateDto fields are validated using above tested methods.
+     * UpdateDto consists of Create Dto part, id and date fields. UpdateDto fields are validated using above tested methods.
      */
     @ParameterizedTest
     @MethodSource("provideInvalidCommentUpdateDtos")
@@ -91,7 +91,8 @@ class CommentDtoValidatorTest {
                 new CommentDto(null, null, LocalDateTime.now(), "i", "Invalid._name"),
                 new CommentDto(null, null, LocalDateTime.now(), "i", null),
                 new CommentDto(null, null, LocalDateTime.now(), null, "Invalid._name"),
-                new CommentDto(null, null, LocalDateTime.now(), null, null)
+                new CommentDto(null, null, LocalDateTime.now(), null, null),
+                null
         );
     }
 
@@ -108,7 +109,8 @@ class CommentDtoValidatorTest {
                 new CommentDto(null, "", LocalDateTime.now(), "i", "Invalid._name"),
                 new CommentDto(null, "awdawdawd", LocalDateTime.now(), "i", null),
                 new CommentDto(null, "507f191e810c19729de860eb123123", LocalDateTime.now(), null, "Invalid._name"),
-                new CommentDto(null, "507f191e810c19729de860e.b", LocalDateTime.now(), null, null)
+                new CommentDto(null, "507f191e810c19729de860e.b", LocalDateTime.now(), null, null),
+                null
         );
     }
 
@@ -125,7 +127,8 @@ class CommentDtoValidatorTest {
                 new CommentDto("", "", LocalDateTime.now(), "i", "Invalid._name"),
                 new CommentDto("awdawdawd", "awdawdawd", LocalDateTime.now(), "i", null),
                 new CommentDto("507f191e810c19729de860eb123123", "507f191e810c19729de860eb123123", LocalDateTime.now(), null, "Invalid._name"),
-                new CommentDto("507f191e810c19729de860e.b", "507f191e810c19729de860e.b", LocalDateTime.now(), null, null)
+                new CommentDto("507f191e810c19729de860e.b", "507f191e810c19729de860e.b", LocalDateTime.now(), null, null),
+                null
         );
     }
 }

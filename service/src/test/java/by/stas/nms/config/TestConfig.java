@@ -3,8 +3,11 @@ package by.stas.nms.config;
 import by.stas.nms.cache.CustomCacheManager;
 import by.stas.nms.cache.impl.CustomHazelcastCacheManager;
 import by.stas.nms.dto.CommentDto;
+import by.stas.nms.dto.NewsWithCommentsDto;
 import by.stas.nms.renovator.Renovator;
 import by.stas.nms.renovator.impl.CommentDtoRenovator;
+import by.stas.nms.renovator.impl.NewsWithCommentsDtoRenovator;
+import by.stas.nms.repository.CommentRepository;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -38,6 +41,11 @@ public class TestConfig {
     @Bean
     public Renovator<CommentDto> commentDtoRenovator() {
         return new CommentDtoRenovator();
+    }
+
+    @Bean
+    public Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator(CommentRepository commentRepository) {
+        return new NewsWithCommentsDtoRenovator(commentRepository);
     }
 
     @Bean
