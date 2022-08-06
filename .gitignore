@@ -10,6 +10,5 @@
 /persistence/build
 /service/build
 /web/build
-/configServer/build
+/config-server/build
 /logs
-/test

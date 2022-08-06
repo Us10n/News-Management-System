@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class CustomHazelcastCacheManager implements CustomCacheManager {
     private final HazelcastInstance hazelcastInstance;
     @Value("${hazelcast.map.ttl:10}")
-    private Integer ttl;
+    private Integer ttl = 10;
 
     @Autowired
     public CustomHazelcastCacheManager(HazelcastInstance hazelcastInstance) {

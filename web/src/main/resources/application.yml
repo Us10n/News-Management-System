@@ -3,9 +3,9 @@ server:
 
 spring:
   application:
-    name: news-management-system
+    name: nms-application
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:http://nms-config-server:8888
   profiles:
     active: dev
 

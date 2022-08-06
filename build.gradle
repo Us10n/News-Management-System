@@ -14,21 +14,21 @@ allprojects {
     }
 }
 
-configurations {
-    childJars
-}
-
-dependencies {
-    subprojects.each {
-        childJars project(it.path)
-    }
-}
-
-jar {
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-    manifest {
-        attributes('Main-Class': 'by.stas.nms.NewsManagementApplication')
-    }
-    dependsOn configurations.childJars
-    from { configurations.childJars.collect { zipTree(it) } }
-}
+//configurations {
+//    childJars
+//}
+//
+//dependencies {
+//    subprojects.each {
+//        childJars project(it.path)
+//    }
+//}
+//
+//jar {
+//    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+//    manifest {
+//        attributes('Main-Class': 'by.stas.nms.NewsManagementApplication')
+//    }
+//    dependsOn configurations.childJars
+//    from { configurations.childJars.collect { zipTree(it) } }
+//}

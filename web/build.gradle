@@ -2,14 +2,10 @@ plugins {
     id 'org.springframework.boot' version '2.7.0'
 }
 
-springBoot {
-
-}
-
 bootJar{
     mainClass = "by.stas.nms.NewsManagementApplication"
     archivesBaseName= "nms-application"
-    destinationDirectory= file("../compose/")
+//    destinationDirectory= file("../compose/jars")
 }
 
 dependencies {
@@ -29,6 +25,9 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.11.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
 }
 
 test {

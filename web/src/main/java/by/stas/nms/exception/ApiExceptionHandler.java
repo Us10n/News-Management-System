@@ -122,7 +122,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleException(Exception ex, Locale locale) {
+    public ResponseEntity<Map<String, String>> handleException(Locale locale) {
         Map<String, String> errorResponse = new HashMap<>();
         String message = messageSource.getMessage(ERROR_UNEXPECTED, null, locale);
 

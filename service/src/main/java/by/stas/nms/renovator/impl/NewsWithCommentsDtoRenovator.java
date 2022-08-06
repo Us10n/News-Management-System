@@ -34,13 +34,13 @@ public class NewsWithCommentsDtoRenovator implements Renovator<NewsWithCommentsD
             newObject.setTitle(oldObject.getTitle());
         }
         if (newObject.getComments() == null) {
-            List<CommentDto> existingCommentDtos = commentRepository.findCommentsByNewsId(newObject.getId())
+            List<CommentDto> existingCommentDtos = commentRepository.findCommentsByNewsId(oldObject.getId())
                     .stream()
                     .map(CommentMapper.INSTANCE::mapToDto)
                     .collect(Collectors.toList());
             newObject.setComments(existingCommentDtos);
         } else {
-            List<CommentDto> newCommentDtos = replaceNewsCommentWithNewOnes(newObject.getId(), newObject.getComments());
+            List<CommentDto> newCommentDtos = replaceNewsCommentWithNewOnes(oldObject.getId(), newObject.getComments());
             newObject.setComments(newCommentDtos);
         }
     }
@@ -54,9 +54,9 @@ public class NewsWithCommentsDtoRenovator implements Renovator<NewsWithCommentsD
                     return CommentMapper.INSTANCE.mapToEntity(commentDto);
                 })
                 .collect(Collectors.toList());
-        commentRepository.saveAll(newComments);
+        List<Comment> createdComments = commentRepository.saveAll(newComments);
 
-        return newComments.stream()
+        return createdComments.stream()
                 .map(CommentMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
     }

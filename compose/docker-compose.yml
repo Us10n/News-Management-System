@@ -4,7 +4,7 @@ services:
   mongo:
     image: mongo
     container_name: mongo
-    command: ["--port", "27017" , "--replSet", "my-replica-set"]
+    command: [ "--port", "27017" , "--replSet", "my-replica-set" ]
     ports:
       - "27017:27017"
     volumes:
@@ -18,7 +18,7 @@ services:
       - "5701:5701"
     mem_limit: 800m
     environment:
-      - HZ_CLUSTERNAME=news-management-cluster
+      - HZ_CLUSTERNAME=nms-cluster
 
   hazelcast_manager:
     image: hazelcast/management-center:latest
@@ -26,3 +26,21 @@ services:
     ports:
       - "8083:8080"
     mem_limit: 1000m
+
+  nms-config-server:
+    build: ../config-server
+    container_name: nms-config-server
+    depends_on:
+      - mongo
+    ports:
+      - "8888:8888"
+
+  nms-application:
+    build: ../web
+    container_name: nms-application
+    depends_on:
+      - mongo
+      - hazelcast
+        - nms-config-server
+    ports:
+      - "8080:8080"

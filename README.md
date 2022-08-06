@@ -19,7 +19,10 @@ RESTfull API web-service that implementing functionality for working with the ne
 + SL4J
 
 ## Instructions
-Docker(Application) runs using command "docker-compose up" in /compose folder.
+1) Run "./gradlew bootJar" in app folders ("News-Management-System","nms-config-server").
+2) In "compose" folder run "docker-compose up".
+3) Wait till containers get started.
+4) Application is ready to use.
 
 ## Entity fields
 ### News:
@@ -31,12 +34,13 @@ Docker(Application) runs using command "docker-compose up" in /compose folder.
 
 ### Comments:
 + <b>id</b> (long)
-+ <b>date</b> (ISO 8601)
++ <b>date</b> (ISO 8601, LocalDateTime)
 + <b>text</b> (string >1 characters)
 + <b>username</b> (string 5-25 characters.Example: "valid.username_12")
 + <b>id_news</b> (long)
 
 ## API
+
 ### <font size="+1"><u>News</u></font>:
 ##### GET:
 + <b>/news?page={page}&limit={limit}</b> — Get all news ({page} & {limit} - optional int values. Page counting from 0. Default 0 and 10)
@@ -46,6 +50,9 @@ Docker(Application) runs using command "docker-compose up" in /compose folder.
 + <b>/news</b> — Create new News entity. (Body: News entity)
 ##### PATCH:
 + <b>/news/{id}</b> — Update existing News entity. ({id} - news id. Body: any field from News entity)
+##### DELETE:
++ <b>/news/{id}</b> — Delete existing News entity. ({id} - news id.)
+
 ### <font size="+1"><u>Comments</u></font>:
 ##### GET:
 + <b>/comments?page={page}&limit={limit}</b> — Get all comments ({page} & {limit} - optional int values. Page counting from 0. Default 0 and 10)
@@ -55,3 +62,5 @@ Docker(Application) runs using command "docker-compose up" in /compose folder.
 + <b>/comments</b> — Create new Comment entity. (Body: Comment entity. id_news required!)
 ##### PATCH:
 + <b>/comments/{id}</b> — Update existing Comment entity. ({id} - comment id. Body: any field from Comment entity)
+##### DELETE:
++ <b>/news/{id}</b> — Delete existing Comments entity. ({id} - comment id.)

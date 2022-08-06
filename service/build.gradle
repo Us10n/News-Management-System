@@ -15,11 +15,8 @@ dependencies {
 
     implementation 'com.hazelcast:hazelcast:5.1.2'
 
+
     testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.11.0'
-
-    testImplementation 'org.springframework:spring-test:5.3.20'
-    implementation 'org.springframework:spring-context:5.3.20'
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
     testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.8'
 }
