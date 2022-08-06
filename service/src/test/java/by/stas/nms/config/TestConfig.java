@@ -14,38 +14,23 @@ import com.hazelcast.core.HazelcastInstance;
 import com.mongodb.ReadConcern;
 import com.mongodb.TransactionOptions;
 import com.mongodb.WriteConcern;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 
-@Configuration
-@ComponentScan("by.stas.nms.repository")
 @Profile("test")
+@Configuration
 public class TestConfig {
     @Bean
-    public Config testClientConfig(@Value("${hazelcast.cluster.name:test}") String clusterName) {
+    public Config testClientConfig() {
         Config config = new Config();
-        config.setClusterName(clusterName);
+        config.setClusterName("test");
         return config;
     }
 
     @Bean
     public HazelcastInstance testHazelcastInstance(Config config) {
         return Hazelcast.newHazelcastInstance(config);
-    }
-
-    @Bean
-    public Renovator<CommentDto> commentDtoRenovator() {
-        return new CommentDtoRenovator();
-    }
-
-    @Bean
-    public Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator(CommentRepository commentRepository) {
-        return new NewsWithCommentsDtoRenovator(commentRepository);
     }
 
     @Bean
@@ -62,4 +47,15 @@ public class TestConfig {
                 .build();
         return new MongoTransactionManager(dbFactory, transactionOptions);
     }
+
+    @Bean
+    public Renovator<CommentDto> commentDtoRenovator() {
+        return new CommentDtoRenovator();
+    }
+
+    @Bean
+    public Renovator<NewsWithCommentsDto> newsWithCommentsDtoRenovator(CommentRepository commentRepository) {
+        return new NewsWithCommentsDtoRenovator(commentRepository);
+    }
 }
+

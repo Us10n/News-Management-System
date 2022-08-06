@@ -6,11 +6,13 @@ import by.stas.nms.exception.ExceptionHolder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
+@ActiveProfiles("test")
 class NewsWithCommentsDtoValidatorTest {
 
     /**

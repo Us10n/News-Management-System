@@ -6,12 +6,5 @@ spring:
   cloud:
     config:
       enabled: false
-  mongodb:
-    embedded:
-      version: 4.0.2
-  data:
-    mongodb:
-      auto-index-creation: true
   profiles:
     active: test
-
