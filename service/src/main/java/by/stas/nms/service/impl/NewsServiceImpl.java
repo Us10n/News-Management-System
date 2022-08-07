@@ -60,30 +60,30 @@ public class NewsServiceImpl implements NewsService {
         //In order to create new document with auto-generated _id field id field must be null.
         newsToCreate.setId(null);
         newsToCreate.setDate(createDate);
-        newsRepository.save(newsToCreate);
+        News createdNews = newsRepository.save(newsToCreate);
 
         //Set create date to comments.
         //In order to create new document with auto-generated _id field id field must be null.
-        List<Comment> comments = new ArrayList<>();
+        List<Comment> createdComments = new ArrayList<>();
         if (Objects.nonNull(object.getComments())) {
-            comments = object.getComments()
+            List<Comment> comments = object.getComments()
                     .stream()
                     .map(commentDto -> {
                         commentDto.setId(null);
                         commentDto.setDate(createDate);
-                        commentDto.setNewsId(newsToCreate.getId());
+                        commentDto.setNewsId(createdNews.getId());
                         return CommentMapper.INSTANCE.mapToEntity(commentDto);
                     })
                     .toList();
-            commentRepository.saveAll(comments);
+            createdComments = commentRepository.saveAll(comments);
         }
 
         //Invalidate cache due to objects creation
         cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
         cacheManager.invalidateCacheMap(NEWS_CACHE_NAME);
 
-        NewsWithCommentsDto createdNewsWithCommentDto = NewsWithCommentsMapper.INSTANCE.mapToDto(newsToCreate);
-        List<CommentDto> createdCommentDtos = comments
+        NewsWithCommentsDto createdNewsWithCommentDto = NewsWithCommentsMapper.INSTANCE.mapToDto(createdNews);
+        List<CommentDto> createdCommentDtos = createdComments
                 .stream()
                 .map(CommentMapper.INSTANCE::mapToDto).toList();
         createdNewsWithCommentDto.setComments(createdCommentDtos);
@@ -184,15 +184,43 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public NewsDto readByIdWithoutComments(String id) {
+        ExceptionHolder exceptionHolder = new ExceptionHolder();
+        StringsValidator.isIdStringValid(id, exceptionHolder);
+        if (!exceptionHolder.getExceptionMessages().isEmpty()) {
+            throw new IncorrectParameterException(exceptionHolder);
+        }
+
+        String key = cacheManager.generateKeyForCacheMap(id);
+
+        Optional<Object> cachedNews = cacheManager.getObjectFromCacheMap(NEWS_CACHE_NAME, key);
+        NewsDto newsDto;
+        if (cachedNews.isPresent()) {
+            newsDto = (NewsDto) cachedNews.get();
+        } else {
+            Optional<News> optionalNews = newsRepository.findNewsById(id);
+            News foundNews = optionalNews.orElseThrow(
+                    () -> new NoSuchElementException(NEWS_NOT_FOUND)
+            );
+
+            newsDto = NewsMapper.INSTANCE.mapToDto(foundNews);
+
+            cacheManager.putObjectToCacheMap(NEWS_CACHE_NAME, key, newsDto);
+        }
+
+        return newsDto;
+    }
+
+    @Override
     @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
     public NewsWithCommentsDto update(String id, NewsWithCommentsDto object) {
         if (!isUpdateObjectContainNewValues(object)) {
             throw new EmptyObjectPassedException(EMPTY_NEWS_PASSED);
         }
 
-        NewsWithCommentsDto existingNewsWithCommentsDto = readById(id);
+        NewsDto existingNewsDto = readByIdWithoutComments(id);
         object.setId(id);
-        newsWithCommentsDtoRenovator.updateObject(object, existingNewsWithCommentsDto);
+        newsWithCommentsDtoRenovator.updateObject(object, new NewsWithCommentsDto(existingNewsDto));
 
         ExceptionHolder exceptionHolder = new ExceptionHolder();
         NewsWithCommentsDtoValidator.isNewsWithCommentsUpdateDtoValid(object, exceptionHolder);
@@ -200,13 +228,13 @@ public class NewsServiceImpl implements NewsService {
             throw new IncorrectParameterException(exceptionHolder);
         }
 
-        News newNews = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
-        newsRepository.save(newNews);
+        News newsToUpdate = NewsWithCommentsMapper.INSTANCE.mapToEntity(object);
+        News updatedNews = newsRepository.save(newsToUpdate);
 
         //Invalidate cache due to object update
         cacheManager.invalidateCacheMap(NEWS_CACHE_NAME);
 
-        NewsWithCommentsDto updatedNewsWithCommentsDto = NewsWithCommentsMapper.INSTANCE.mapToDto(newNews);
+        NewsWithCommentsDto updatedNewsWithCommentsDto = NewsWithCommentsMapper.INSTANCE.mapToDto(updatedNews);
         updatedNewsWithCommentsDto.setComments(object.getComments());
 
         return updatedNewsWithCommentsDto;
@@ -216,7 +244,7 @@ public class NewsServiceImpl implements NewsService {
     @Transactional(value = "mongoTransactionManager", propagation = Propagation.REQUIRED)
     public void delete(String id) {
         //Check whether news with this id exist or not
-        readById(id);
+        readByIdWithoutComments(id);
 
         commentRepository.deleteCommentsByNewsId(id);
         newsRepository.deleteById(id);
@@ -229,7 +257,7 @@ public class NewsServiceImpl implements NewsService {
     private boolean isUpdateObjectContainNewValues(NewsWithCommentsDto object) {
         return Objects.nonNull(object) && (
                 Objects.nonNull(object.getComments())
-                || Objects.nonNull(object.getText())
-                || Objects.nonNull(object.getTitle()));
+                        || Objects.nonNull(object.getText())
+                        || Objects.nonNull(object.getTitle()));
     }
 }

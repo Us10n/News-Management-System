@@ -57,12 +57,12 @@ public class CommentServiceImpl implements CommentService {
         commentToCreate.setId(null);
         //Set create date to comment
         commentToCreate.setDate(LocalDateTime.now());
-        commentRepository.save(commentToCreate);
+        Comment createdComment = commentRepository.save(commentToCreate);
 
         //Invalidate cache due to new object creation
         cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
 
-        return CommentMapper.INSTANCE.mapToDto(commentToCreate);
+        return CommentMapper.INSTANCE.mapToDto(createdComment);
     }
 
     @Override
@@ -134,7 +134,6 @@ public class CommentServiceImpl implements CommentService {
         if (cachedComment.isPresent()) {
             commentDto = (CommentDto) cachedComment.get();
         } else {
-
             Optional<Comment> optionalComment = commentRepository.findCommentById(id);
             Comment foundComment = optionalComment.orElseThrow(
                     () -> new NoSuchElementException(COMMENT_NOT_FOUND)
@@ -166,19 +165,12 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Comment commentToUpdate = CommentMapper.INSTANCE.mapToEntity(object);
-        commentRepository.save(commentToUpdate);
+        Comment updatedComment = commentRepository.save(commentToUpdate);
 
         //Invalidate cache due to object update
         cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
 
-        return CommentMapper.INSTANCE.mapToDto(commentToUpdate);
-    }
-
-    private boolean isUpdateObjectContainNewValues(CommentDto object) {
-        return Objects.nonNull(object) && (
-                Objects.nonNull(object.getDate())
-                        || Objects.nonNull(object.getText())
-                        || Objects.nonNull(object.getUsername()));
+        return CommentMapper.INSTANCE.mapToDto(updatedComment);
     }
 
     @Override
@@ -190,5 +182,12 @@ public class CommentServiceImpl implements CommentService {
 
         //Invalidate cache due to object removing
         cacheManager.invalidateCacheMap(COMMENTS_CACHE_NAME);
+    }
+
+    private boolean isUpdateObjectContainNewValues(CommentDto object) {
+        return Objects.nonNull(object) && (
+                Objects.nonNull(object.getDate())
+                        || Objects.nonNull(object.getText())
+                        || Objects.nonNull(object.getUsername()));
     }
 }

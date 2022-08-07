@@ -21,6 +21,11 @@ public class NewsWithCommentsDto extends NewsDto implements Serializable {
         super(id, date, title, text);
         this.comments = comments;
     }
+
+    public NewsWithCommentsDto(NewsDto newsDto) {
+        super(newsDto.getId(), newsDto.getDate(), newsDto.getTitle(), newsDto.getText());
+        comments = new ArrayList<>();
+    }
 }
 
 
