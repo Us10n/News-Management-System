@@ -19,21 +19,47 @@ RESTfull API web-service that implementing functionality for working with the ne
 + SL4J
 
 ## Instructions
-1) Run "./gradlew bootJar" in app folders ("News-Management-System","nms-config-server").
-2) In "compose" folder run "docker-compose up".
+1) Run "./gradlew bootJar" in app folder ("News-Management-System").
+2) In "compose" folder run "docker-compose build", if docker images should be rebuilt.  Then run "docker-compose up -d" to starts docker containers detached.
 3) Wait till containers get started.
 4) Application is ready to use.
 
+## Tests
+- Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application. (Running in container is not supported yet)
+
+## Properties
+- application.yml (web):
+  - spring.profiles.active (dev,prod) – changes active profile what leads to different config parameters.
+  - spring.config.import: - Address for Spring Cloud Config server (protocol, ip, port)
+- application.yml (config-server):
+  - spring.cloud.config.server.native.search-locations – path to folder with client configs
+- nms-application-*.yml (config-server):
+  - spring.data.mongodb.host – MongoDb host address (ip)
+  - spring.data.mongodb.port – MongoDb port
+  - spring.data.mongodb.database – MongoDb database name that will be used
+  - spring.data.mongodb.auto-index-creation – Enables auto index creation (Required for Fulltext search)
+  - logging.file.name – Logs file name
+  - logging.level.by.stas.nms.debug – Log level for logging aspects
+  - hazelcast.server.host – Hazelcast server address (ip)
+  - hazelcast.server.port – Hazelcast server port
+  - hazelcast.cluster.name – Hazelcast claster name to use
+  - hazelcast.map.ttl – TimeToLive in seconds for cache map
+  
+<h4>
+  <p>Strongly recommended being accurate with option changes</p>
+  <p>(Especially with ports,hosts,names)</p>
+</h4>
+
 ## Entity fields
 ### News:
-+ <b>id</b> (long)
++ <b>id</b> (ObjectId)
 + <b>date</b> (ISO 8601)
 + <b>title</b> (string 2-20 characters)
 + <b>text</b> (string >1 characters)
 + <b>comments</b> (list)
 
 ### Comments:
-+ <b>id</b> (long)
++ <b>id</b> (ObjectId)
 + <b>date</b> (ISO 8601, LocalDateTime)
 + <b>text</b> (string >1 characters)
 + <b>username</b> (string 5-25 characters.Example: "valid.username_12")
