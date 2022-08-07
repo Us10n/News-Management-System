@@ -7,15 +7,15 @@ RESTfull API web-service that implementing functionality for working with the ne
 + Java 17
 + Gradle 7.2
 + Tomcat 9.0.63
-+ Spring (Boot, Web, Data, Cloud, AOP)
-+ MongoDB
++ Spring (Boot, Web, Data, Cloud, AOP) 
++ MongoDB 5.0
 + Mapstruct 1.5.2
 + Lombok 1.18.20
 + Docker (Docker-compose) 20.10.17
 + Hazelcast 5.1.2
 + WireMock
 + Mock
-+ JUnit
++ JUnit 5
 + SL4J
 
 ## Instructions
@@ -25,7 +25,8 @@ RESTfull API web-service that implementing functionality for working with the ne
 4) Application is ready to use.
 
 ## Tests
-- Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application. (Running in container is not supported yet)
+- Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application. 
+(Running in container is not supported yet) (wiremock-studio-*.jar might be loaded with error due to big file size. If this situation took place download it manually from: https://wiremock.org/studio/docs/getting-started/desktop/)
 
 ## Properties
 - application.yml (web):
