@@ -20,13 +20,14 @@ RESTfull API web-service that implementing functionality for working with the ne
 
 ## Instructions
 1) Run command "./gradlew bootJar" in app folder ("News-Management-System").
-2) In "compose" folder run "docker-compose build" to build images, if it's necessary. Then run "docker-compose up -d" to start docker containers detached.
-3) Wait till all containers get started and application is ready to use.
+2) Start Docker Desktop (Windows, Mac, Linux) or Docker Engine (Linux). 
+3) In "compose" folder run "docker-compose build" to build images, if it's necessary. Then run "docker-compose up -d" to start docker containers detached.
+4) Wait until all containers get started and application is ready to use.
 
 ## Tests
-- Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application. 
-(Running in container is not supported yet)
-(wiremock-studio-*.jar might be loaded from GitHub with errors due to big file size. In this situation download it manually from: https://wiremock.org/studio/docs/getting-started/desktop/ to "wiremock" folder)
+- Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application
+(Running in container is not supported yet).
+- "wiremock-studio-*.jar" might be loaded from GitHub with errors due to big file size. In this situation download it manually from: https://wiremock.org/studio/docs/getting-started/desktop/ to "wiremock" folder.
 
 ## Properties
 - application.yml (web):
