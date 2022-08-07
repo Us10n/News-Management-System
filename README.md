@@ -19,21 +19,21 @@ RESTfull API web-service that implementing functionality for working with the ne
 + SL4J
 
 ## Instructions
-1) Run "./gradlew bootJar" in app folder ("News-Management-System").
-2) In "compose" folder run "docker-compose build", if docker images should be rebuilt.  Then run "docker-compose up -d" to starts docker containers detached.
-3) Wait till containers get started.
-4) Application is ready to use.
+1) Run command "./gradlew bootJar" in app folder ("News-Management-System").
+2) In "compose" folder run "docker-compose build" to build images, if it's necessary. Then run "docker-compose up -d" to start docker containers detached.
+3) Wait till all containers get started and application is ready to use.
 
 ## Tests
 - Before running service integration tests outside of docker container run "java -jar wiremock-studio-2.32.0-18.jar" to start standalone wiremock application. 
-(Running in container is not supported yet) (wiremock-studio-*.jar might be loaded with error due to big file size. If this situation took place download it manually from: https://wiremock.org/studio/docs/getting-started/desktop/)
+(Running in container is not supported yet)
+(wiremock-studio-*.jar might be loaded from GitHub with errors due to big file size. In this situation download it manually from: https://wiremock.org/studio/docs/getting-started/desktop/ to "wiremock" folder)
 
 ## Properties
 - application.yml (web):
-  - spring.profiles.active (dev,prod) – changes active profile what leads to different config parameters.
+  - spring.profiles.active (dev,prod) – Changes active profile. Leads to different config parameters.
   - spring.config.import: - Address for Spring Cloud Config server (protocol, ip, port)
 - application.yml (config-server):
-  - spring.cloud.config.server.native.search-locations – path to folder with client configs
+  - spring.cloud.config.server.native.search-locations – Path to folder with client configs
 - nms-application-*.yml (config-server):
   - spring.data.mongodb.host – MongoDb host address (ip)
   - spring.data.mongodb.port – MongoDb port
@@ -47,8 +47,8 @@ RESTfull API web-service that implementing functionality for working with the ne
   - hazelcast.map.ttl – TimeToLive in seconds for cache map
   
 <h4>
-  <p>Strongly recommended being accurate with option changes</p>
-  <p>(Especially with ports,hosts,names)</p>
+  <p>It's strongly recommended to be accurate with property changes</p>
+  <p>(Especially with ports, hosts, names)</p>
 </h4>
 
 ## Entity fields
@@ -70,24 +70,24 @@ RESTfull API web-service that implementing functionality for working with the ne
 
 ### <font size="+1"><u>News</u></font>:
 ##### GET:
-+ <b>/news?page={page}&limit={limit}</b> — Get all news ({page} & {limit} - optional int values. Page counting from 0. Default 0 and 10)
-+ <b>/news/{id}</b> — Get single news with comments by id ({id} - news id. ObjectId type)
-+ <b>/news/search?term={term}&page={page}&limit={limit}</b> — Get all news using fulltext search ({term} - term for fulltext search)
++ <b>/news?page={page}&limit={limit}</b> — Get all news ({page} & {limit} - optional int values. Pages start counting from 0. Default values page=0 and limit=10)
++ <b>/news/{id}</b> — Get News entity with comments by id ({id} - news id).
++ <b>/news/search?term={term}&page={page}&limit={limit}</b> — Get all news using fulltext search ({term} - term for fulltext search).
 ##### POST:
 + <b>/news</b> — Create new News entity. (Body: News entity)
 ##### PATCH:
 + <b>/news/{id}</b> — Update existing News entity. ({id} - news id. Body: any field from News entity)
 ##### DELETE:
-+ <b>/news/{id}</b> — Delete existing News entity. ({id} - news id.)
++ <b>/news/{id}</b> — Delete existing News entity. ({id} - news id)
 
 ### <font size="+1"><u>Comments</u></font>:
 ##### GET:
-+ <b>/comments?page={page}&limit={limit}</b> — Get all comments ({page} & {limit} - optional int values. Page counting from 0. Default 0 and 10)
-+ <b>/comments/{id}</b> — Get single comment by id ({id} - comment id)
-+ <b>/comments/search?term={term}&page={page}&limit={limit}</b> — Get all comments using fulltext search ({term} - term for fulltext search)
++ <b>/comments?page={page}&limit={limit}</b> — Get all comments ({page} & {limit} - optional int values. Pages start counting from 0. Default values page=0 and limit=10).
++ <b>/comments/{id}</b> — Get Comment entity by id ({id} - comment id).
++ <b>/comments/search?term={term}&page={page}&limit={limit}</b> — Get all comments using fulltext search ({term} - term for fulltext search).
 ##### POST:
-+ <b>/comments</b> — Create new Comment entity. (Body: Comment entity. id_news required!)
++ <b>/comments</b> — Create new Comment entity. (Body: Comment entity)
 ##### PATCH:
 + <b>/comments/{id}</b> — Update existing Comment entity. ({id} - comment id. Body: any field from Comment entity)
 ##### DELETE:
-+ <b>/news/{id}</b> — Delete existing Comments entity. ({id} - comment id.)
++ <b>/news/{id}</b> — Delete existing Comment entity. ({id} - comment id)
