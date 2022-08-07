@@ -1,0 +1,8 @@
+{
+  "services" : [ {
+    "id" : "5g9w2",
+    "name" : "test-config-server",
+    "port" : 8889,
+    "rootDir" : "test-config-server"
+  } ]
+}
