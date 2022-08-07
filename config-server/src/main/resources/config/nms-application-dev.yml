@@ -1,0 +1,24 @@
+spring:
+  data:
+    mongodb:
+      host: mongo
+      port: 27017
+      database: news-system-dev
+      auto-index-creation: true
+
+logging:
+  file:
+    name: ./logs/log4j2-app.txt
+  level:
+    by:
+      stas:
+        nms: debug
+
+hazelcast:
+  server:
+    host: hazelcast
+    port: 5701
+  cluster:
+    name: nms-cluster
+  map:
+    ttl: 20

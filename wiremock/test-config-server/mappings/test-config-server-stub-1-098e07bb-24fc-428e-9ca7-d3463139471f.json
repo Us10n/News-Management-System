@@ -1,0 +1,21 @@
+{
+  "id" : "098e07bb-24fc-428e-9ca7-d3463139471f",
+  "name" : "test-config-server stub 1",
+  "request" : {
+    "url" : "/application/test",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\n    \"name\": \"application\",\n    \"profiles\": [\n        \"test\"\n    ],\n    \"label\": null,\n    \"version\": null,\n    \"state\": null,\n    \"propertySources\": [\n        {\n      \"name\": \"classpath:/config/application-test.yml\",\n      \"source\": {\n        \"spring.mongodb.embedded.version\": \"4.0.2\",\n        \"spring.data.mongodb.auto-index-creation\": true\n      }\n    }\n    ]\n}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    },
+    "transformers" : [ "response-template" ]
+  },
+  "uuid" : "098e07bb-24fc-428e-9ca7-d3463139471f",
+  "persistent" : true,
+  "priority" : 5,
+  "insertionIndex" : 0,
+  "postServeActions" : [ ]
+}

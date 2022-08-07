@@ -1,0 +1,34 @@
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    group = 'by.stas.nms'
+    version = '1.0'
+
+    compileJava {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+//configurations {
+//    childJars
+//}
+//
+//dependencies {
+//    subprojects.each {
+//        childJars project(it.path)
+//    }
+//}
+//
+//jar {
+//    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+//    manifest {
+//        attributes('Main-Class': 'by.stas.nms.NewsManagementApplication')
+//    }
+//    dependsOn configurations.childJars
+//    from { configurations.childJars.collect { zipTree(it) } }
+//}

@@ -1,0 +1,10 @@
+spring:
+  #  application:
+  #    name: news-management-system
+  #  config:
+  #    import: configserver:http://localhost:8888
+  cloud:
+    config:
+      enabled: false
+  profiles:
+    active: test
