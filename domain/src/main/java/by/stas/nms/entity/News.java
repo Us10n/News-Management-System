@@ -10,13 +10,15 @@ import org.springframework.data.mongodb.core.mapping.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Class {@code News} represents news entity.
+ */
 @Document(collection = "news")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class News {
 
-//    @MongoId(FieldType.OBJECT_ID)
     @Id
     private String id;
 

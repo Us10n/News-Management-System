@@ -3,7 +3,7 @@ package by.stas.nms.service;
 /**
  * Interface of service that performs CRUD operations.
  *
- * @param <T> Dto class
+ * @param <T> Dto class type
  * @param <R> id type
  */
 public interface CRUDService<T,R> {

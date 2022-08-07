@@ -10,6 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class {@code ServiceAspect} provides functionality to log service layer activities.
+ *
+ * */
 @Aspect
 @Component
 @Slf4j

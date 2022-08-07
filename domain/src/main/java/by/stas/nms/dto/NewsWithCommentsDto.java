@@ -10,6 +10,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class {@code NewsWithCommentsDto} represents News entity with comments. Implements Serializable.
+ *
+ * @see by.stas.nms.entity.News
+ * @see by.stas.nms.entity.Comment
+ * @see Serializable
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

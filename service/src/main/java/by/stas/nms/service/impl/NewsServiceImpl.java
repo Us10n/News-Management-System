@@ -16,6 +16,7 @@ import by.stas.nms.mapper.NewsWithCommentsMapper;
 import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
+import by.stas.nms.service.CommentService;
 import by.stas.nms.service.NewsService;
 import by.stas.nms.validator.NewsWithCommentsDtoValidator;
 import by.stas.nms.validator.StringsValidator;
@@ -33,6 +34,13 @@ import java.util.*;
 import static by.stas.nms.exception.ExceptionMessageKey.EMPTY_NEWS_PASSED;
 import static by.stas.nms.exception.ExceptionMessageKey.NEWS_NOT_FOUND;
 
+
+
+/**
+ * The class {@code NewsServiceImpl} provides method to work with news.
+ *
+ * @see NewsService
+ */
 @Service
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {

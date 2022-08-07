@@ -4,6 +4,11 @@ import by.stas.nms.dto.CommentDto;
 import by.stas.nms.renovator.Renovator;
 import org.springframework.stereotype.Component;
 
+/**
+ * The class {@code CommentDtoRenovator} provides method to update old object with new values.
+ *
+ * @see Renovator
+ */
 @Component
 public class CommentDtoRenovator implements Renovator<CommentDto> {
     @Override

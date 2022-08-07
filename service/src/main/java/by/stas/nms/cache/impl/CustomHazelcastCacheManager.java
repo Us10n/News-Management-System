@@ -9,11 +9,16 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class {@code CustomHazelcastCacheManager} provides custom methods to cache using hazelcast (client-server topology).
+ */
 @Component
 public class CustomHazelcastCacheManager implements CustomCacheManager {
-    private final HazelcastInstance hazelcastInstance;
+    //TimeToLive(default=10)
     @Value("${hazelcast.map.ttl:10}")
     private Integer ttl = 10;
+
+    private final HazelcastInstance hazelcastInstance;
 
     @Autowired
     public CustomHazelcastCacheManager(HazelcastInstance hazelcastInstance) {

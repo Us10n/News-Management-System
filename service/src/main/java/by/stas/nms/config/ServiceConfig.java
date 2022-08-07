@@ -6,6 +6,9 @@ import com.hazelcast.core.HazelcastInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 
+/**
+ * Class {@code ServiceConfig} contains spring configuration.
+ */
 @Configuration
 @Import(PersistenceConfig.class)
 @ComponentScan(basePackages = {"by.stas.nms.service", "by.stas.nms.cache",

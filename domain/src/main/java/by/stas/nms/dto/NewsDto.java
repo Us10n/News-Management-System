@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Class {@code NewsDto} represents News entity. Implements Serializable.
+ *
+ * @see by.stas.nms.entity.News
+ * @see Serializable
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

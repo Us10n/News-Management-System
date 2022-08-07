@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class {@code ControllerAspect} provides functionality to log controllers activities.
+ * */
 @Aspect
 @Component
 @Slf4j

@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * Class {@code CommentDto} represents Comment entity. Implements Serializable.
+ *
+ * @see by.stas.nms.entity.Comment
+ * @see Serializable
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

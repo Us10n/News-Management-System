@@ -12,6 +12,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The class {@code NewsWithCommentsDtoRenovator} provides method to update old object with new values.
+ *
+ * @see Renovator
+ */
 @Component
 public class NewsWithCommentsDtoRenovator implements Renovator<NewsWithCommentsDto> {
 

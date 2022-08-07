@@ -15,6 +15,14 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+/**
+ * Class {@code NewsController} is an endpoint of the API
+ * which allows to perform CRUD operations with news.
+ * Annotated by {@link RestController} with no parameters to provide an answer in application/json.
+ * Annotated by {@link RequestMapping} with parameter value = "/news".
+ * Annotated by {@link Validated} with no parameters.
+ * So that {@code NewsController} is accessed by sending request to /news endpoint.
+ */
 @RestController
 @Validated
 @RequestMapping("/news")
@@ -27,12 +35,25 @@ public class NewsController {
         this.newsService = newsService;
     }
 
+    /**
+     * Method for saving new news.
+     *
+     * @param newsDto news to save
+     * @return saved news
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public NewsWithCommentsDto createNews(@RequestBody NewsWithCommentsDto newsDto) {
         return newsService.create(newsDto);
     }
 
+    /**
+     * Method for getting all news. Supports pagination.
+     *
+     * @param page  result page (default=0)
+     * @param limit result limit (default=10)
+     * @return list with found news.
+     */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<NewsDto> readAllNews(@RequestParam(name = "page", defaultValue = "0") @PositiveOrZero Integer page,
@@ -40,6 +61,14 @@ public class NewsController {
         return newsService.readAll(page, limit);
     }
 
+    /**
+     * Method for getting all news using Fulltext search. Supports pagination.
+     *
+     * @param term  term for fulltext search
+     * @param page  result page (default=0)
+     * @param limit result limit (default=10)
+     * @return list with found news.
+     */
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public List<NewsDto> readAllNewsByTerm(@RequestParam(name = "term",defaultValue = "") String term,
@@ -48,6 +77,12 @@ public class NewsController {
         return newsService.readAll(term, page, limit);
     }
 
+    /**
+     * Method for getting single news with comments by id. Support pagination.
+     *
+     * @param id news id.
+     * @return found single news with comments.
+     */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public NewsWithCommentsDto readNewsById(@PathVariable String id,
@@ -56,6 +91,13 @@ public class NewsController {
         return newsService.readById(id, page, limit);
     }
 
+    /**
+     * Method for updating existing news with new values.
+     *
+     * @param id         news id.
+     * @param newsDto object with new values.
+     * @return news after update.
+     */
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public NewsWithCommentsDto updateNewsById(@PathVariable String id,
@@ -63,6 +105,11 @@ public class NewsController {
         return newsService.update(id,newsDto);
     }
 
+    /**
+     * Method for deleting existing news by id.
+     *
+     * @param id news id.
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> deleteNewsById(@PathVariable String id) {

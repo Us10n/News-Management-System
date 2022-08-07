@@ -11,6 +11,7 @@ import by.stas.nms.mapper.CommentMapper;
 import by.stas.nms.renovator.Renovator;
 import by.stas.nms.repository.CommentRepository;
 import by.stas.nms.repository.NewsRepository;
+import by.stas.nms.service.CRUDService;
 import by.stas.nms.service.CommentService;
 import by.stas.nms.validator.CommentDtoValidator;
 import by.stas.nms.validator.StringsValidator;
@@ -30,6 +31,11 @@ import java.util.Optional;
 
 import static by.stas.nms.exception.ExceptionMessageKey.*;
 
+/**
+ * The class {@code CommentServiceImpl} provides method to work with comments.
+ *
+ * @see CommentService
+ */
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {

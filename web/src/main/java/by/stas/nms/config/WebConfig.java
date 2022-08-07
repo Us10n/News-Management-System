@@ -9,6 +9,9 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 import java.util.Locale;
 
+/**
+ * Class {@code WebConfig} contains spring configuration.
+ */
 @Configuration
 @Import({ServiceConfig.class})
 public class WebConfig {

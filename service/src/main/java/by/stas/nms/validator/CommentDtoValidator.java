@@ -9,9 +9,21 @@ import java.time.format.DateTimeParseException;
 
 import static by.stas.nms.exception.ExceptionMessageKey.*;
 
+/**
+ * The utility class that provide methods to validate CommentDto
+ *
+ * @see StringsValidator
+ * @see CommentDto
+ */
 @UtilityClass
 public class CommentDtoValidator {
 
+    /**
+     * Validates CommentDtos' payload. Payload consists of next fields: date, text, username.
+     *
+     * @param commentDto      comment dto to validate
+     * @param exceptionHolder holds exceptions with messages if not valid.
+     */
     public void isCommentDtoPayloadValid(CommentDto commentDto, ExceptionHolder exceptionHolder) {
         if(commentDto==null){
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);
@@ -25,6 +37,12 @@ public class CommentDtoValidator {
         }
     }
 
+    /**
+     * Validates Comments' create Dto. CreateDto consists of payload part and news_id field
+     *
+     * @param commentDto      comment dto to validate
+     * @param exceptionHolder holds exceptions with messages if not valid.
+     */
     public void isCommentCreateDtoValid(CommentDto commentDto, ExceptionHolder exceptionHolder) {
         if(commentDto==null){
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);
@@ -34,6 +52,12 @@ public class CommentDtoValidator {
         }
     }
 
+    /**
+     * Validates Comments' update Dto. CreateDto consists of payload part, news_id field and date field.
+     *
+     * @param commentDto      comment dto to validate
+     * @param exceptionHolder holds exceptions with messages if not valid.
+     */
     public void isCommentUpdateDtoValid(CommentDto commentDto, ExceptionHolder exceptionHolder) {
         if(commentDto==null){
             exceptionHolder.addException(NULL_PASSED, CommentDto.class);

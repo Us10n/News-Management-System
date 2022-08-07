@@ -9,13 +9,15 @@ import org.springframework.data.mongodb.core.mapping.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * Class {@code Comment} represents comment entity.
+ */
 @Document(collection = "comments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
 
-//    @MongoId(FieldType.OBJECT_ID)
     @Id
     private String id;
 

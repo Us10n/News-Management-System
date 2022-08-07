@@ -12,6 +12,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import javax.validation.ConstraintViolationException;
 import java.util.*;
 
+/**
+ * Class that catches all exceptions and returns object with error messages.
+ */
 @ControllerAdvice
 public class ApiExceptionHandler {
     private static final String VERSION = " custom";

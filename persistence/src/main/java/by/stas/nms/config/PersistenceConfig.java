@@ -12,6 +12,9 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 
+/**
+ * Class {@code PersistenceConfig} contains spring configuration.
+ */
 @Configuration
 @ComponentScan(basePackages = {"by.stas.nms.repository", "by.stas.nms.logging"})
 public class PersistenceConfig extends AbstractMongoClientConfiguration {

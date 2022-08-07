@@ -1,8 +1,13 @@
 package by.stas.nms.exception;
 
+/**
+ * {@code EmptyObjectPassedException} is generated in case object was passed into method without initialization.
+ *
+ * @see RuntimeException
+ */
 public class EmptyObjectPassedException extends RuntimeException {
+
     public EmptyObjectPassedException() {
-        super();
     }
 
     public EmptyObjectPassedException(String message) {

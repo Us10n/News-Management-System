@@ -11,6 +11,12 @@ import java.util.Objects;
 import static by.stas.nms.exception.ExceptionMessageKey.BAD_ID_STRING;
 import static by.stas.nms.exception.ExceptionMessageKey.BAD_TERM_STRING;
 
+/**
+ * The utility class that provide methods to validate Strings. Used to validate fields in CommentDtoValidator and NewsWithCommentsDtoValidator.
+ *
+ * @see CommentDtoValidator
+ * @see NewsWithCommentsDtoValidator
+ */
 @UtilityClass
 public class StringsValidator {
     private static final Integer MIN_TEXT_LENGTH = 1;

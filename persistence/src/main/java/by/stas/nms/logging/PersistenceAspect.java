@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class {@code PersistenceAspect} provides functionality to log persistence layer activities.
+ *
+ * */
 @Aspect
 @Component
 @Slf4j
