@@ -2,7 +2,7 @@ spring:
   application:
     name: application
   config:
-    import: configserver:http://localhost:8888
+    import: configserver:http://localhost:8889
   profiles:
     active: test
 
