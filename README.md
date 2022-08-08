@@ -91,4 +91,4 @@ RESTfull API web-service that implementing functionality for working with the ne
 ##### PATCH:
 + <b>/comments/{id}</b> — Update existing Comment entity. ({id} - comment id. Body: any field from Comment entity)
 ##### DELETE:
-+ <b>/news/{id}</b> — Delete existing Comment entity. ({id} - comment id)
++ <b>/comments/{id}</b> — Delete existing Comment entity. ({id} - comment id)
